@@ -7,3 +7,177 @@ datasource db {
   provider = "postgresql"
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
+enum SeatType {
+  REGULAR
+  PREMIUM
+  VIP
+  RECLINER
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  EXPIRED
+}
+
+enum ShowtimeStatus {
+  SCHEDULED
+  CANCELLED
+  COMPLETED
+  FULL
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  password      String
+  role          Role      @default(USER)
+  avatar        String?
+  phone         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  bookings      Booking[]
+  reviews       Review[]
+}
+
+model Movie {
+  id            String      @id @default(cuid())
+  title         String
+  description   String
+  genre         String[]
+  duration      Int         // minutes
+  rating        Float       @default(0)
+  language      String      @default("English")
+  releaseDate   DateTime
+  posterUrl     String
+  backdropUrl   String?
+  trailerUrl    String?
+  cast          String[]
+  director      String
+  status        String      @default("NOW_SHOWING") // NOW_SHOWING, COMING_SOON, ENDED
+  popularityScore Float     @default(0)
+  totalBookings Int         @default(0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  showtimes     Showtime[]
+  reviews       Review[]
+}
+
+model Theater {
+  id            String    @id @default(cuid())
+  name          String
+  location      String
+  city          String
+  address       String
+  phone         String?
+  screens       Screen[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Screen {
+  id            String      @id @default(cuid())
+  name          String
+  theaterId     String
+  theater       Theater     @relation(fields: [theaterId], references: [id], onDelete: Cascade)
+  totalRows     Int
+  totalCols     Int
+  screenType    String      @default("STANDARD") // STANDARD, IMAX, 4DX, DOLBY
+  seats         Seat[]
+  showtimes     Showtime[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model Seat {
+  id            String          @id @default(cuid())
+  screenId      String
+  screen        Screen          @relation(fields: [screenId], references: [id], onDelete: Cascade)
+  row           String
+  col           Int
+  seatNumber    String
+  type          SeatType        @default(REGULAR)
+  isActive      Boolean         @default(true)
+  bookingSeats  BookingSeat[]
+  seatLocks     SeatLock[]
+}
+
+model Showtime {
+  id            String          @id @default(cuid())
+  movieId       String
+  movie         Movie           @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  screenId      String
+  screen        Screen          @relation(fields: [screenId], references: [id], onDelete: Cascade)
+  startTime     DateTime
+  endTime       DateTime
+  basePrice     Float
+  premiumMultiplier Float       @default(1.5)
+  vipMultiplier   Float         @default(2.5)
+  reclineMultiplier Float       @default(3.0)
+  status        ShowtimeStatus  @default(SCHEDULED)
+  availableSeats Int            @default(0)
+  totalSeats    Int             @default(0)
+  demandScore   Float           @default(0) // For dynamic pricing
+  bookings      Booking[]
+  seatLocks     SeatLock[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+model Booking {
+  id            String          @id @default(cuid())
+  userId        String
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  showtimeId    String
+  showtime      Showtime        @relation(fields: [showtimeId], references: [id], onDelete: Cascade)
+  totalAmount   Float
+  status        BookingStatus   @default(PENDING)
+  bookingRef    String          @unique @default(cuid())
+  paymentId     String?
+  bookingSeats  BookingSeat[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+model BookingSeat {
+  id            String    @id @default(cuid())
+  bookingId     String
+  booking       Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  seatId        String
+  seat          Seat      @relation(fields: [seatId], references: [id], onDelete: Cascade)
+  price         Float
+  createdAt     DateTime  @default(now())
+}
+
+model SeatLock {
+  id            String    @id @default(cuid())
+  seatId        String
+  seat          Seat      @relation(fields: [seatId], references: [id], onDelete: Cascade)
+  showtimeId    String
+  showtime      Showtime  @relation(fields: [showtimeId], references: [id], onDelete: Cascade)
+  userId        String
+  expiresAt     DateTime
+  createdAt     DateTime  @default(now())
+
+  @@unique([seatId, showtimeId])
+}
+
+model Review {
+  id        String    @id @default(cuid())
+  movieId   String
+  movie     Movie     @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating    Int       // 1-10
+  comment   String?
+  createdAt DateTime  @default(now())
+
+  @@unique([movieId, userId])
+}
