@@ -1,60 +1,107 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
+/* =========================
+   THEME (replaces config)
+   ========================= */
+@theme {
+  /* Core colors */
+  --color-border: hsl(240 5% 16%);
+  --color-input: hsl(240 5% 16%);
+  --color-ring: hsl(45 100% 53%);
 
-@layer base {
-  :root {
-    --background: 240 10% 4%;
-    --foreground: 0 0% 95%;
-    --card: 240 10% 8%;
-    --card-foreground: 0 0% 95%;
-    --popover: 240 10% 8%;
-    --popover-foreground: 0 0% 95%;
-    --primary: 45 100% 53%;
-    --primary-foreground: 240 10% 4%;
-    --secondary: 240 5% 15%;
-    --secondary-foreground: 0 0% 90%;
-    --muted: 240 5% 15%;
-    --muted-foreground: 240 5% 65%;
-    --accent: 0 72% 48%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5% 16%;
-    --input: 240 5% 16%;
-    --ring: 45 100% 53%;
-    --radius: 0.5rem;
-  }
+  --color-background: hsl(240 10% 4%);
+  --color-foreground: hsl(0 0% 95%);
+
+  /* Primary */
+  --color-primary: hsl(45 100% 53%);
+  --color-primary-foreground: hsl(240 10% 4%);
+
+  /* Secondary */
+  --color-secondary: hsl(240 5% 15%);
+  --color-secondary-foreground: hsl(0 0% 90%);
+
+  /* Destructive */
+  --color-destructive: hsl(0 84% 60%);
+  --color-destructive-foreground: hsl(0 0% 98%);
+
+  /* Muted */
+  --color-muted: hsl(240 5% 15%);
+  --color-muted-foreground: hsl(240 5% 65%);
+
+  /* Accent */
+  --color-accent: hsl(0 72% 48%);
+  --color-accent-foreground: hsl(0 0% 98%);
+
+  /* Popover */
+  --color-popover: hsl(240 10% 8%);
+  --color-popover-foreground: hsl(0 0% 95%);
+
+  /* Card */
+  --color-card: hsl(240 10% 8%);
+  --color-card-foreground: hsl(0 0% 95%);
+
+  /* Radius (matches config) */
+  --radius: 0.5rem;
+
+  /* Optional extras you were using */
+  --color-cinema-dark: #0f0f0f;
+
+  /* Fonts (since you used font-body / font-display) */
+  --font-body: Inter, sans-serif;
+  --font-display: Poppins, sans-serif;
 }
 
+/* =========================
+   BASE STYLES
+   ========================= */
 @layer base {
-  * { @apply border-border; }
+  * {
+    @apply border-border;
+  }
+
   body {
-    @apply bg-cinema-dark text-foreground font-body;
+    @apply bg-background text-foreground font-body min-h-full flex flex-col;
+
     background-image: 
       radial-gradient(ellipse 80% 50% at 50% -20%, rgba(245,197,24,0.05) 0%, transparent 60%),
       radial-gradient(ellipse 60% 40% at 80% 80%, rgba(229,9,20,0.04) 0%, transparent 50%);
   }
-  h1, h2, h3 { @apply font-display tracking-wider; }
+
+  h1, h2, h3 {
+    @apply font-display tracking-wider;
+  }
 }
 
+/* =========================
+   UTILITIES (unchanged)
+   ========================= */
 @layer utilities {
-  .seat-grid { display: grid; gap: 6px; }
+  .seat-grid {
+    display: grid;
+    gap: 6px;
+  }
+
   .glass {
     background: rgba(255,255,255,0.04);
     backdrop-filter: blur(12px);
     border: 1px solid rgba(255,255,255,0.08);
   }
+
   .gold-gradient {
     background: linear-gradient(135deg, #F5C518, #E8A000);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+
   .shimmer-bg {
-    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%);
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255,255,255,0.04) 50%,
+      transparent 100%
+    );
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
   }
