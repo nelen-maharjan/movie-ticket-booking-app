@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Toaster } from "@/components/ui/toaster";
+  import { ToastContainer } from 'react-toastify';
 import { Providers } from "@/components/layout/Provider";
 
 export const metadata: Metadata = {
@@ -23,7 +23,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
       <TooltipProvider>
         <Providers>
-        <Toaster />
+        <ToastContainer />
         {children}
         </Providers>
       </TooltipProvider>
