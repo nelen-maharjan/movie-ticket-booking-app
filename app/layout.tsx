@@ -23,7 +23,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
       <TooltipProvider>
         <Providers>
-        <ToastContainer />
+        <ToastContainer position="bottom-right" />
         {children}
         </Providers>
       </TooltipProvider>

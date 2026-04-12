@@ -13,7 +13,7 @@ export default auth((req) => {
   }
 
   if (pathname.startsWith("/admin")) {
-    if (!isLoggedIn || req.auth?.user?.role !== "admin") {
+    if (!isLoggedIn || req.auth?.user?.role !== "ADMIN") {
       return NextResponse.redirect(new URL("/", req.url));
     }
   }
@@ -21,7 +21,7 @@ export default auth((req) => {
   if (pathname.startsWith("/login") && isLoggedIn) {
   const role = req.auth?.user?.role;
 
-  if (role === "admin") {
+  if (role === "ADMIN") {
     return NextResponse.redirect(new URL("/admin", req.url));
   }
 
