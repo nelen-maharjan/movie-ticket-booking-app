@@ -1,7 +1,7 @@
 import { getAdminAnalytics } from "@/app/actions/analytics";
 import { AdminStatsCards } from "@/components/admin/AdminStatsCard";
 import { RevenueChart } from "@/components/admin/RevenueChart";
-import { TopMovies } from "@/components/admin/top-movies";
+import { TopMovies } from "@/components/admin/TopMovies";
 
 export default async function AdminDashboard() {
   const analytics = await getAdminAnalytics();
@@ -9,7 +9,7 @@ export default async function AdminDashboard() {
     <div className="space-y-8">
       <div>
         <h1 className="font-display text-4xl tracking-widest mb-1">DASHBOARD</h1>
-        <p className="text-muted-foreground text-sm">CineVault Operations Overview</p>
+        <p className="text-muted-foreground text-sm">CineHive Operations Overview</p>
       </div>
       <AdminStatsCards stats={analytics.stats} />
       <div className="grid lg:grid-cols-3 gap-6">
