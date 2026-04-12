@@ -15,7 +15,6 @@ import {
   Loader2,
   Eye,
   EyeOff,
-  Film,
 } from "lucide-react";
 import { toast } from "react-toastify";
 
@@ -59,7 +58,6 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
 
-      {/* BACKGROUND */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-175 h-87.5 bg-primary/10 blur-3xl rounded-full" />
         <div className="absolute bottom-[-10%] right-[-10%] w-125 h-75 bg-accent/10 blur-3xl rounded-full" />
@@ -72,14 +70,10 @@ export default function LoginPage() {
         className="w-full max-w-md"
       >
 
-        {/* HEADER */}
         <div className="text-center mb-10">
-          <div className="w-16 h-16 rounded-2xl bg-primary/15 border border-primary/20 flex items-center justify-center mx-auto mb-5 shadow-lg">
-            <Film className="w-8 h-8 text-primary" />
-          </div>
 
           <h1 className="font-display text-4xl tracking-[0.25em] gold-gradient">
-            CINEVAULT
+            CINEHIVE
           </h1>
 
           <p className="text-muted-foreground mt-3 text-sm">
@@ -87,10 +81,8 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* CARD */}
         <div className="glass rounded-2xl p-8 backdrop-blur-xl bg-background/60">
 
-          {/* GOOGLE LOGIN */}
           <Button
             onClick={handleGoogleSignIn}
             variant="outline"
@@ -100,7 +92,6 @@ export default function LoginPage() {
             Continue with Google
           </Button>
 
-          {/* DIVIDER */}
           <div className="flex items-center gap-3 my-5">
             <div className="h-px flex-1 bg-border/50" />
             <span className="text-xs text-muted-foreground">
@@ -109,10 +100,8 @@ export default function LoginPage() {
             <div className="h-px flex-1 bg-border/50" />
           </div>
 
-          {/* FORM */}
           <form onSubmit={handleSubmit} className="space-y-5">
 
-            {/* EMAIL */}
             <div className="space-y-2">
               <Label className="text-xs uppercase tracking-wider text-muted-foreground">
                 Email
@@ -128,7 +117,6 @@ export default function LoginPage() {
               />
             </div>
 
-            {/* PASSWORD */}
             <div className="space-y-2">
               <Label className="text-xs uppercase tracking-wider text-muted-foreground">
                 Password
@@ -158,7 +146,6 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* SUBMIT */}
             <Button
               type="submit"
               size="lg"
@@ -172,7 +159,6 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          {/* FOOTER */}
           <div className="mt-6 text-center text-sm text-muted-foreground">
             Don&apos;t have an account?{" "}
             <Link href="/register" className="text-primary hover:underline">
