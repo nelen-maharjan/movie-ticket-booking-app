@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Toaster } from "sonner";
+import { Toaster } from "@/components/ui/toaster";
+import { Providers } from "@/components/layout/Provider";
 
 export const metadata: Metadata = {
   title: "CinemaHive",
@@ -21,8 +22,10 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
       <TooltipProvider>
+        <Providers>
         <Toaster />
         {children}
+        </Providers>
       </TooltipProvider>
       </body>
     </html>
