@@ -17,6 +17,7 @@ import {
   EyeOff,
 } from "lucide-react";
 import { toast } from "react-toastify";
+import { GoogleIcon } from "@/components/icons/GoogleIcon";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -86,9 +87,9 @@ export default function LoginPage() {
           <Button
             onClick={handleGoogleSignIn}
             variant="outline"
-            className="w-full flex items-center gap-2 mb-5 hover:bg-muted/50 transition"
+            className="w-full flex items-center cursor-pointer gap-2 mb-5 hover:bg-muted/50 transition"
           >
-            {/* <Chrome className="w-4 h-4" /> */}
+            <GoogleIcon className="" />
             Continue with Google
           </Button>
 
@@ -150,7 +151,7 @@ export default function LoginPage() {
               type="submit"
               size="lg"
               disabled={isPending}
-              className="w-full bg-primary text-primary-foreground hover:opacity-90 transition shadow-lg shadow-primary/20"
+              className="w-full bg-primary text-primary-foreground hover:opacity-90 transition shadow-lg shadow-primary/20 cursor-pointer"
             >
               {isPending && (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />

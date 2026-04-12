@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-import { Loader2, Film } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { registerUser } from "@/app/actions/auth";
 
 type RegisterForm = {
@@ -121,7 +121,7 @@ export default function RegisterPage() {
               type="submit"
               size="lg"
               disabled={isPending}
-              className="w-full bg-primary text-primary-foreground hover:opacity-90 transition shadow-lg shadow-primary/20"
+              className="w-full bg-primary text-primary-foreground hover:opacity-90 transition shadow-lg shadow-primary/20 cursor-pointer"
             >
               {isPending && (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
