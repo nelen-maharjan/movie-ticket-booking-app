@@ -1,6 +1,6 @@
 import { getAdminAnalytics } from "@/app/actions/analytics";
 import { AdminStatsCards } from "@/components/admin/AdminStatsCard";
-import { RevenueChart } from "@/components/admin/revenue-chart";
+import { RevenueChart } from "@/components/admin/RevenueChart";
 import { TopMovies } from "@/components/admin/top-movies";
 
 export default async function AdminDashboard() {
