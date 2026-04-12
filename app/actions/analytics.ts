@@ -1,6 +1,6 @@
 "use server";
-import { db } from "@/lib/db";
 import { calculateRevenueMetrics } from "@/lib/algorithms";
+import { db } from "@/lib/db";
 
 export async function getAdminAnalytics() {
   const [totalMovies, totalBookings, totalUsers, totalRevenue, recentBookings, topMovies] = await Promise.all([

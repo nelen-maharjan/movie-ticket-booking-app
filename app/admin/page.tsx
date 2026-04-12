@@ -1,7 +1,8 @@
-import { getAdminAnalytics } from "@/app/actions/analytics";
+
 import { AdminStatsCards } from "@/components/admin/AdminStatsCard";
 import { RevenueChart } from "@/components/admin/RevenueChart";
 import { TopMovies } from "@/components/admin/TopMovies";
+import { getAdminAnalytics } from "../actions/analytics";
 
 export default async function AdminDashboard() {
   const analytics = await getAdminAnalytics();
