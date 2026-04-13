@@ -1,5 +1,5 @@
 "use client";
-
+export const runtime = "nodejs"; // or "edge" if you use edge
 export const dynamic = "force-dynamic";
 
 import { useState, useTransition } from "react";
@@ -30,8 +30,10 @@ export default function LoginPage() {
 
   const router = useRouter();
   const params = useSearchParams();
-
-  const callbackUrl = params.get("callbackUrl") || "/";
+const callbackUrl =
+  typeof window !== "undefined"
+    ? params.get("callbackUrl") || "/"
+    : "/";
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
   e.preventDefault();
