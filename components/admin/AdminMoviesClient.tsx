@@ -23,9 +23,13 @@ import type { Movie, MovieForm, MovieStatus } from "@/lib/types/movie";
 const GENRES = [
   "Action","Comedy","Drama","Horror","Sci-Fi","Thriller",
   "Romance","Animation","Documentary","Crime","Fantasy","Adventure"
-];
+] as const;
 
-const STATUSES: MovieStatus[] = ["NOW_SHOWING","COMING_SOON","ENDED"];
+const STATUSES: MovieStatus[] = [
+  "NOW_SHOWING",
+  "COMING_SOON",
+  "ENDED",
+];
 
 const emptyForm: MovieForm = {
   title: "",
@@ -43,30 +47,28 @@ const emptyForm: MovieForm = {
   rating: 7.0,
 };
 
-type FieldConfig = {
-  id: keyof MovieForm;
-  label: string;
-  span?: number;
-  textarea?: boolean;
-  type?: string;
-  step?: number;
-  min?: number;
-  max?: number;
-};
+/* ---------------------------
+   SAFE MAPPER (IMPORTANT FIX)
+----------------------------*/
+function movieToForm(m: Movie): MovieForm {
+  return {
+    title: m.title,
+    description: m.description,
+    genre: m.genre,
+    duration: m.duration,
+    language: m.language,
+    releaseDate: new Date(m.releaseDate).toISOString().split("T")[0],
 
-const fields: FieldConfig[] = [
-  { id: "title", label: "Title", span: 2 },
-  { id: "description", label: "Description", span: 2, textarea: true },
-  { id: "director", label: "Director" },
-  { id: "duration", label: "Duration (min)", type: "number" },
-  { id: "language", label: "Language" },
-  { id: "rating", label: "Rating (0-10)", type: "number", step: 0.1, min: 0, max: 10 },
-  { id: "releaseDate", label: "Release Date", type: "date" },
-  { id: "posterUrl", label: "Poster URL" },
-  { id: "backdropUrl", label: "Backdrop URL" },
-  { id: "trailerUrl", label: "Trailer URL" },
-  { id: "cast", label: "Cast (comma separated)", span: 2 },
-];
+    posterUrl: m.posterUrl,
+    backdropUrl: m.backdropUrl ?? "",
+    trailerUrl: m.trailerUrl ?? "",
+
+    cast: m.cast.join(", "),
+    director: m.director,
+    status: m.status as MovieStatus,
+    rating: m.rating,
+  };
+}
 
 export function AdminMoviesClient({ movies }: { movies: Movie[] }) {
   const [showForm, setShowForm] = useState(false);
@@ -83,53 +85,45 @@ export function AdminMoviesClient({ movies }: { movies: Movie[] }) {
   };
 
   const openEdit = (m: Movie) => {
-  setForm({
-    title: m.title,
-    description: m.description,
-    genre: m.genre,
-    duration: m.duration,
-    language: m.language,
-    releaseDate: new Date(m.releaseDate).toISOString().split("T")[0],
-    posterUrl: m.posterUrl,
-    backdropUrl: m.backdropUrl ?? "", 
-    trailerUrl: m.trailerUrl ?? "",   
-    cast: m.cast.join(", "),          
-    director: m.director,
-    status: m.status,
-    rating: m.rating,
-  });
-
-  setEditing(m);
-  setShowForm(true);
-};
+    setForm(movieToForm(m));
+    setEditing(m);
+    setShowForm(true);
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     startTransition(async () => {
       try {
-        const data = {
-          ...form,
-          duration: Number(form.duration),
-          rating: Number(form.rating),
-          cast:
-            typeof form.cast === "string"
-              ? form.cast.split(",").map((c: string) => c.trim())
-              : form.cast,
-        };
+        const payload = {
+  ...form,
+  duration: Number(form.duration),
+  rating: Number(form.rating),
 
-        if (editing) await updateMovie(editing.id, data);
-        else await createMovie(data);
+    cast: Array.isArray(form.cast)
+    ? form.cast
+    : form.cast
+        .split(",")
+        .map((c: string) => c.trim())
+        .filter((c: string) => c.length > 0),
+};
 
-        toast({ title: editing ? "Movie updated" : "Movie created" });
-        setShowForm(false);
-      } catch (error) {
-        const message =
-          error instanceof Error ? error.message : "Something went wrong";
+        if (editing) {
+          await updateMovie(editing.id, payload);
+        } else {
+          await createMovie(payload);
+        }
 
         toast({
+          title: editing ? "Movie updated" : "Movie created",
+        });
+
+        setShowForm(false);
+      } catch (error) {
+        toast({
           title: "Error",
-          description: message,
+          description:
+            error instanceof Error ? error.message : "Something went wrong",
           variant: "destructive",
         });
       }
@@ -144,12 +138,10 @@ export function AdminMoviesClient({ movies }: { movies: Movie[] }) {
         await deleteMovie(id);
         toast({ title: "Movie deleted" });
       } catch (error) {
-        const message =
-          error instanceof Error ? error.message : "Something went wrong";
-
         toast({
           title: "Error",
-          description: message,
+          description:
+            error instanceof Error ? error.message : "Something went wrong",
           variant: "destructive",
         });
       }
@@ -161,7 +153,9 @@ export function AdminMoviesClient({ movies }: { movies: Movie[] }) {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="font-display text-4xl tracking-widest">MOVIES</h1>
+          <h1 className="font-display text-4xl tracking-widest">
+            MOVIES
+          </h1>
           <p className="text-muted-foreground text-sm">
             {movies.length} movies in catalog
           </p>
@@ -178,15 +172,26 @@ export function AdminMoviesClient({ movies }: { movies: Movie[] }) {
         <table className="w-full">
           <tbody>
             {movies.map((movie) => (
-              <tr key={movie.id}>
-                <td>{movie.title}</td>
-                <td>{formatDuration(movie.duration)}</td>
-                <td>{movie.rating.toFixed(1)}</td>
-                <td>
-                  <Button onClick={() => openEdit(movie)}>
+              <tr key={movie.id} className="border-b">
+                <td className="p-3">{movie.title}</td>
+                <td className="p-3">
+                  {formatDuration(movie.duration)}
+                </td>
+                <td className="p-3">
+                  {movie.rating.toFixed(1)}
+                </td>
+                <td className="p-3 flex gap-2">
+                  <Button
+                    size="icon"
+                    onClick={() => openEdit(movie)}
+                  >
                     <Pencil />
                   </Button>
-                  <Button onClick={() => handleDelete(movie.id)}>
+
+                  <Button
+                    size="icon"
+                    onClick={() => handleDelete(movie.id)}
+                  >
                     <Trash2 />
                   </Button>
                 </td>
@@ -205,52 +210,43 @@ export function AdminMoviesClient({ movies }: { movies: Movie[] }) {
 
       {/* Modal */}
       {showForm && (
-        <div className="fixed inset-0 z-50 bg-black/70 flex justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/70 flex justify-center p-4 overflow-y-auto">
           <div className="w-full max-w-2xl bg-background p-6 rounded-xl">
-            <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
-              {fields.map((f) => (
-                <div key={f.id} className={f.span === 2 ? "col-span-2" : ""}>
-                  <Label>{f.label}</Label>
+            <form
+              onSubmit={handleSubmit}
+              className="grid grid-cols-2 gap-4"
+            >
+              {Object.keys(emptyForm).map((key) => (
+                <div key={key} className="col-span-2">
+                  <Label>{key}</Label>
 
-                  {f.textarea ? (
-                    <textarea
-                      value={String(form[f.id] ?? "")}
-                      onChange={(e) =>
-                        setForm((prev: MovieForm) => ({
-                          ...prev,
-                          [f.id]: e.target.value,
-                        }))
-                      }
-                    />
-                  ) : (
-                    <Input
-                      type={f.type || "text"}
-                      value={String(form[f.id] ?? "")}
-                      onChange={(e) =>
-                        setForm((prev: MovieForm) => ({
-                          ...prev,
-                          [f.id]: e.target.value,
-                        }))
-                      }
-                    />
-                  )}
+                  <Input
+                    value={String((form as never)[key] ?? "")}
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        [key]: e.target.value,
+                      }))
+                    }
+                  />
                 </div>
               ))}
 
               {/* Genres */}
-              <div className="col-span-2">
+              <div className="col-span-2 flex flex-wrap gap-2">
                 {GENRES.map((g) => (
                   <button
                     key={g}
                     type="button"
                     onClick={() =>
-                      setForm((p: MovieForm) => ({
+                      setForm((p) => ({
                         ...p,
                         genre: p.genre.includes(g)
-                          ? p.genre.filter((x: string) => x !== g)
+                          ? p.genre.filter((x) => x !== g)
                           : [...p.genre, g],
                       }))
                     }
+                    className="px-2 py-1 border rounded text-sm"
                   >
                     {g}
                   </button>
@@ -258,25 +254,28 @@ export function AdminMoviesClient({ movies }: { movies: Movie[] }) {
               </div>
 
               {/* Status */}
-              <div className="col-span-2">
+              <div className="col-span-2 flex gap-2">
                 {STATUSES.map((s) => (
                   <button
                     key={s}
                     type="button"
                     onClick={() =>
-                      setForm((p: MovieForm) => ({
+                      setForm((p) => ({
                         ...p,
                         status: s,
                       }))
                     }
+                    className="px-2 py-1 border rounded text-sm"
                   >
-                    {s.replace("_", " ")}
+                    {s}
                   </button>
                 ))}
               </div>
 
               <Button type="submit" disabled={isPending}>
-                {isPending && <Loader2 className="animate-spin mr-2" />}
+                {isPending && (
+                  <Loader2 className="mr-2 animate-spin" />
+                )}
                 {editing ? "Update" : "Create"}
               </Button>
             </form>

@@ -60,30 +60,22 @@ export async function getMovies(filters?: {
   search?: string;
   limit?: number;
 }) {
-  return db.movie.findMany({
+  const movies = await db.movie.findMany({
     where: {
       ...(filters?.status && { status: filters.status }),
       ...(filters?.genre && { genre: { has: filters.genre } }),
       ...(filters?.search && {
         OR: [
-          {
-            title: {
-              contains: filters.search,
-              mode: "insensitive",
-            },
-          },
-          {
-            director: {
-              contains: filters.search,
-              mode: "insensitive",
-            },
-          },
+          { title: { contains: filters.search, mode: "insensitive" } },
+          { director: { contains: filters.search, mode: "insensitive" } },
         ],
       }),
     },
     orderBy: [{ popularityScore: "desc" }, { createdAt: "desc" }],
     take: filters?.limit,
   });
+
+  return movies as unknown as import("@/lib/types/movie").Movie[];
 }
 
 /* =========================

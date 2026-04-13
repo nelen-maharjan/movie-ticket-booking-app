@@ -17,8 +17,10 @@ export type Movie = {
   language: string;
   releaseDate: string | Date;
   posterUrl: string;
-  backdropUrl?: string;
-  trailerUrl?: string;
+
+  backdropUrl: string | null;   
+  trailerUrl: string | null;    
+
   cast: string[];
   director: string;
   status: MovieStatus;
