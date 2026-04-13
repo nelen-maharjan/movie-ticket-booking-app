@@ -55,7 +55,7 @@ export default function RegisterPage() {
 
         toast.success("Account created successfully 🎬");
 
-        router.push("/login");
+        router.push("/signin");
       } catch (e: unknown) {
         const message =
           e instanceof Error ? e.message : "Something went wrong";
@@ -132,7 +132,7 @@ export default function RegisterPage() {
 
           <div className="mt-6 text-center text-sm text-muted-foreground">
             Already have an account?{" "}
-            <Link href="/login" className="text-primary hover:underline">
+            <Link href="/signin" className="text-primary hover:underline">
               Sign in
             </Link>
           </div>

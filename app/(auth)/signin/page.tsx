@@ -21,7 +21,7 @@ import {
 import { toast } from "react-toastify";
 import { GoogleIcon } from "@/components/icons/GoogleIcon";
 
-export default function LoginPage() {
+export default function SigninPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);

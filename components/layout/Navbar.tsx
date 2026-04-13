@@ -87,7 +87,7 @@ export function Navbar() {
           ) : (
             <>
               <Button variant="ghost" size="sm" asChild>
-                <Link href="/login">Sign In</Link>
+                <Link href="/signin">Sign In</Link>
               </Button>
 
               <Button

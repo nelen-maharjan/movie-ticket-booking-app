@@ -8,7 +8,7 @@ export default auth((req) => {
 
   if (pathname.startsWith("/dashboard")) {
     if (!isLoggedIn) {
-      return NextResponse.redirect(new URL("/login", req.url));
+      return NextResponse.redirect(new URL("/signin", req.url));
     }
   }
 
@@ -18,7 +18,7 @@ export default auth((req) => {
     }
   }
 
-  if (pathname.startsWith("/login") && isLoggedIn) {
+  if (pathname.startsWith("/signin") && isLoggedIn) {
   const role = req.auth?.user?.role;
 
   if (role === "ADMIN") {
@@ -33,5 +33,5 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/admin/:path*", "/login"],
+  matcher: ["/dashboard/:path*", "/admin/:path*", "/signin"],
 };
