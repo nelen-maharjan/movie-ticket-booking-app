@@ -1,42 +1,18 @@
 "use client";
 
-import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Film,
-  LayoutDashboard,
-  MapPin,
-  Clock,
-  Ticket,
-  LogOut,
-  Clapperboard,
-  Menu,
-} from "lucide-react";
+import { LogOut, Clapperboard } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
+import { navItems } from "../shared/nav-items";
 
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+export function AdminSidebar() {
+  const pathname = usePathname();
 
-import { Button } from "@/components/ui/button";
-
-const navItems = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/movies", label: "Movies", icon: Film },
-  { href: "/admin/theaters", label: "Theaters", icon: MapPin },
-  { href: "/admin/showtimes", label: "Showtimes", icon: Clock },
-  { href: "/admin/bookings", label: "Bookings", icon: Ticket },
-];
-
-function SidebarContent({ pathname }: { pathname: string }) {
   return (
-    <div className="h-full flex flex-col">
+    <aside className="hidden lg:flex w-64 shrink-0 border-r bg-background/60 backdrop-blur-xl flex-col sticky top-0 h-screen">
 
-      {/* Header */}
       <div className="p-5 border-b">
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-lg bg-cinema-gold/10">
@@ -54,7 +30,6 @@ function SidebarContent({ pathname }: { pathname: string }) {
         </div>
       </div>
 
-      {/* Navigation */}
       <nav className="flex-1 p-3 space-y-1.5 overflow-y-auto">
         {navItems.map(({ href, label, icon: Icon }) => {
           const isActive = pathname === href;
@@ -72,7 +47,7 @@ function SidebarContent({ pathname }: { pathname: string }) {
             >
               <span
                 className={cn(
-                  "absolute left-0 top-1/2 -translate-y-1/2 h-5 w-1 rounded-r-full transition-all",
+                  "absolute left-0 top-1/2 -translate-y-1/2 h-5 w-1 rounded-r-full",
                   isActive
                     ? "bg-cinema-gold"
                     : "opacity-0 group-hover:opacity-40 bg-muted-foreground"
@@ -94,51 +69,17 @@ function SidebarContent({ pathname }: { pathname: string }) {
         })}
       </nav>
 
-      {/* Footer */}
       <div className="p-3 border-t">
         <button
           onClick={() => signOut({ callbackUrl: "/" })}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-all"
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition"
         >
           <div className="w-8 h-8 flex items-center justify-center rounded-md">
             <LogOut className="w-4 h-4" />
           </div>
-
           <span className="font-medium">Sign Out</span>
         </button>
       </div>
-    </div>
-  );
-}
-
-export function AdminSidebar() {
-  const pathname = usePathname();
-
-  return (
-    <>
-      {/* 📱 Mobile Top Bar */}
-      <div className="lg:hidden flex items-center justify-between p-3 border-b bg-background/60 backdrop-blur">
-        <div className="flex items-center gap-2">
-          <Clapperboard className="w-5 h-5 text-cinema-gold" />
-          <span className="font-display tracking-widest">ADMIN</span>
-        </div>
-
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <Menu className="w-5 h-5" />
-            </Button>
-          </SheetTrigger>
-
-          <SheetContent side="left" className="p-0 w-72">
-            <SidebarContent pathname={pathname} />
-          </SheetContent>
-        </Sheet>
-      </div>
-
-      <aside className="hidden lg:flex w-60 shrink-0 border-r bg-background/60 backdrop-blur-xl flex-col">
-        <SidebarContent pathname={pathname} />
-      </aside>
-    </>
+    </aside>
   );
 }
