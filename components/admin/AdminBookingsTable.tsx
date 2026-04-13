@@ -3,6 +3,7 @@
 import * as React from "react";
 import {
   ColumnDef,
+  SortingState,
   flexRender,
   getCoreRowModel,
   getSortedRowModel,
@@ -10,6 +11,7 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+
 
 import {
   Table,
@@ -32,24 +34,30 @@ import {
 
 import { MoreHorizontal } from "lucide-react";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
-
-type Booking = any;
+import { BookingWithRelations } from "@/lib/types/booking";
 
 const STATUS_VARIANTS: Record<
-  string,
+  BookingWithRelations["status"],
   "default" | "secondary" | "destructive" | "outline"
 > = {
   CONFIRMED: "default",
   PENDING: "secondary",
   CANCELLED: "destructive",
+  EXPIRED: "outline",
 };
 
-export function AdminBookingsTable({ data }: { data: Booking[] }) {
-  const [sorting, setSorting] = React.useState([]);
-  const [globalFilter, setGlobalFilter] = React.useState("");
-  const [statusFilter, setStatusFilter] = React.useState<string | null>(null);
+export function AdminBookingsTable({
+  data,
+}: {
+  data: BookingWithRelations[];
+}) {
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [globalFilter, setGlobalFilter] = React.useState<string>("");
+  const [statusFilter, setStatusFilter] = React.useState<
+    BookingWithRelations["status"] | null
+  >(null);
 
-  const columns: ColumnDef<Booking>[] = [
+  const columns: ColumnDef<BookingWithRelations>[] = [
     {
       accessorKey: "bookingRef",
       header: "Ref",
@@ -63,13 +71,11 @@ export function AdminBookingsTable({ data }: { data: Booking[] }) {
       id: "user",
       header: "User",
       cell: ({ row }) => (
-        <div className="flex flex-col">
-          <span className="text-sm font-medium">
-            {row.original.user.name}
-          </span>
-          <span className="text-xs text-muted-foreground">
+        <div>
+          <p className="text-sm font-medium">{row.original.user.name}</p>
+          <p className="text-xs text-muted-foreground">
             {row.original.user.email}
-          </span>
+          </p>
         </div>
       ),
     },
@@ -77,18 +83,18 @@ export function AdminBookingsTable({ data }: { data: Booking[] }) {
       id: "movie",
       header: "Movie",
       cell: ({ row }) => (
-        <div className="flex flex-col">
-          <span className="text-sm font-medium">
+        <div>
+          <p className="text-sm font-medium">
             {row.original.showtime.movie.title}
-          </span>
-          <span className="text-xs text-muted-foreground">
+          </p>
+          <p className="text-xs text-muted-foreground">
             {row.original.showtime.screen.theater.name}
-          </span>
+          </p>
         </div>
       ),
     },
     {
-      accessorKey: "showtime.startTime",
+      id: "showtime",
       header: "Show Time",
       cell: ({ row }) => (
         <span className="text-sm text-muted-foreground">
@@ -99,12 +105,14 @@ export function AdminBookingsTable({ data }: { data: Booking[] }) {
     {
       id: "seats",
       header: "Seats",
-      cell: ({ row }) => (
-        <span className="text-sm">
-          {row.original.bookingSeats.length} seat
-          {row.original.bookingSeats.length > 1 ? "s" : ""}
-        </span>
-      ),
+      cell: ({ row }) => {
+        const count = row.original.bookingSeats.length;
+        return (
+          <span className="text-sm">
+            {count} seat{count > 1 ? "s" : ""}
+          </span>
+        );
+      },
     },
     {
       accessorKey: "totalAmount",
@@ -119,21 +127,20 @@ export function AdminBookingsTable({ data }: { data: Booking[] }) {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => (
-        <Badge variant={STATUS_VARIANTS[row.original.status] || "outline"}>
+        <Badge variant={STATUS_VARIANTS[row.original.status]}>
           {row.original.status}
         </Badge>
       ),
     },
     {
       id: "actions",
-      cell: ({ row }) => (
+      cell: () => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button size="icon" variant="ghost">
               <MoreHorizontal className="w-4 h-4" />
             </Button>
           </DropdownMenuTrigger>
-
           <DropdownMenuContent align="end">
             <DropdownMenuItem>View</DropdownMenuItem>
             <DropdownMenuItem>Cancel</DropdownMenuItem>
@@ -144,42 +151,46 @@ export function AdminBookingsTable({ data }: { data: Booking[] }) {
   ];
 
   const filteredData = React.useMemo(() => {
-    let filtered = data;
-
-    if (statusFilter) {
-      filtered = filtered.filter((b) => b.status === statusFilter);
-    }
-
-    return filtered;
+    if (!statusFilter) return data;
+    return data.filter((b) => b.status === statusFilter);
   }, [data, statusFilter]);
 
   const table = useReactTable({
-    data: filteredData,
-    columns,
-    state: {
-      sorting,
-      globalFilter,
-    },
-    onSortingChange: setSorting,
-    onGlobalFilterChange: setGlobalFilter,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-  });
+  data: filteredData,
+  columns,
+  state: {
+    sorting,
+    globalFilter,
+  },
+  onSortingChange: setSorting,
+  onGlobalFilterChange: setGlobalFilter,
+  globalFilterFn: (row, _, value) => {
+    const search = value.toLowerCase();
+
+    return (
+      row.original.bookingRef.toLowerCase().includes(search) ||
+      row.original.user.name?.toLowerCase().includes(search) ||
+      row.original.user.email?.toLowerCase().includes(search) ||
+      row.original.showtime.movie.title.toLowerCase().includes(search)
+    );
+  },
+  getCoreRowModel: getCoreRowModel(),
+  getSortedRowModel: getSortedRowModel(),
+  getFilteredRowModel: getFilteredRowModel(),
+  getPaginationRowModel: getPaginationRowModel(),
+});
 
   return (
     <div className="space-y-4">
-      {/* 🔍 Toolbar */}
-      <div className="flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
+      {/* Toolbar */}
+      <div className="flex flex-col md:flex-row gap-3 md:justify-between">
         <Input
           placeholder="Search bookings..."
-          value={globalFilter ?? ""}
+          value={globalFilter}
           onChange={(e) => setGlobalFilter(e.target.value)}
           className="max-w-sm"
         />
 
-        {/* Status Filters */}
         <div className="flex gap-2">
           {["ALL", "CONFIRMED", "PENDING", "CANCELLED"].map((s) => (
             <Button
@@ -191,7 +202,9 @@ export function AdminBookingsTable({ data }: { data: Booking[] }) {
                   : "outline"
               }
               onClick={() =>
-                setStatusFilter(s === "ALL" ? null : s)
+                setStatusFilter(
+                  s === "ALL" ? null : (s as BookingWithRelations["status"])
+                )
               }
             >
               {s}
@@ -200,17 +213,17 @@ export function AdminBookingsTable({ data }: { data: Booking[] }) {
         </div>
       </div>
 
-      {/* 🧾 Table */}
-      <div className="rounded-xl border bg-background/60 backdrop-blur">
+      {/* Table */}
+      <div className="rounded-xl border">
         <Table>
           <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
+            {table.getHeaderGroups().map((hg) => (
+              <TableRow key={hg.id}>
+                {hg.headers.map((header) => (
                   <TableHead
                     key={header.id}
                     onClick={header.column.getToggleSortingHandler()}
-                    className="cursor-pointer select-none"
+                    className="cursor-pointer"
                   >
                     {flexRender(
                       header.column.columnDef.header,
@@ -225,7 +238,7 @@ export function AdminBookingsTable({ data }: { data: Booking[] }) {
           <TableBody>
             {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} className="hover:bg-muted/40">
+                <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(
@@ -245,34 +258,6 @@ export function AdminBookingsTable({ data }: { data: Booking[] }) {
             )}
           </TableBody>
         </Table>
-      </div>
-
-      {/* 📄 Pagination */}
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
-          Page {table.getState().pagination.pageIndex + 1} of{" "}
-          {table.getPageCount()}
-        </p>
-
-        <div className="flex gap-2">
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
-        </div>
       </div>
     </div>
   );

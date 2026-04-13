@@ -1,4 +1,5 @@
-import AdminBookingsTable from "@/components/admin/AdminBookingsTable";
+
+import { AdminBookingsTable } from "@/components/admin/AdminBookingsTable";
 import { db } from "@/lib/db";
 
 export default async function AdminBookingsPage() {
