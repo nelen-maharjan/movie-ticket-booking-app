@@ -1,13 +1,5 @@
-/**
- * ADVANCED ALGORITHMS FOR MOVIE TICKET BOOKING
- * 
- * 1. Dynamic Pricing Algorithm - surge pricing based on demand/time
- * 2. Seat Recommendation Algorithm - optimal seat suggestions  
- * 3. Popularity Score Algorithm - movie engagement ranking
- * 4. Collaborative Filtering - personalized recommendations
- */
+import { PopularityInput } from "./types/popularity";
 
-// ─── 1. DYNAMIC PRICING ALGORITHM ───────────────────────────────────────────
 export interface DynamicPricingInput {
   basePrice: number;
   totalSeats: number;
@@ -160,34 +152,31 @@ export function recommendSeats(
 }
 
 // ─── 3. POPULARITY SCORE ALGORITHM ──────────────────────────────────────────
-export interface PopularityInput {
-  totalBookings: number;
-  recentBookings: number; // last 7 days
-  avgRating: number;      // 0-10
-  reviewCount: number;
-  releaseDate: Date;
-}
 
 export function calculatePopularityScore(input: PopularityInput): number {
-  const { totalBookings, recentBookings, avgRating, reviewCount, releaseDate } = input;
-  
-  // Recency decay: newer movies get a boost
-  const daysSinceRelease = (Date.now() - releaseDate.getTime()) / (1000 * 60 * 60 * 24);
-  const recencyBoost = Math.exp(-daysSinceRelease / 30); // half-life of 30 days
-  
-  // Booking velocity (recent bookings momentum)
+  const {
+    totalBookings,
+    recentBookings,
+    avgRating,
+    reviewCount,
+    releaseDate,
+  } = input;
+
+  const daysSinceRelease =
+    (Date.now() - releaseDate.getTime()) / (1000 * 60 * 60 * 24);
+
+  const recencyBoost = Math.exp(-daysSinceRelease / 30);
+
   const velocity = Math.log10(recentBookings + 1) * 0.3;
-  
-  // Overall booking volume (logarithmic scale)
+
   const volumeScore = Math.log10(totalBookings + 1) * 0.2;
-  
-  // Rating score (normalized 0-1, weighted by review count confidence)
-  const ratingScore = (avgRating / 10) * Math.log10(reviewCount + 1) * 0.3;
-  
-  // Combine scores
-  const rawScore = velocity + volumeScore + ratingScore + recencyBoost * 0.2;
-  
-  // Normalize to 0-100
+
+  const ratingScore =
+    (avgRating / 10) * Math.log10(reviewCount + 1) * 0.3;
+
+  const rawScore =
+    velocity + volumeScore + ratingScore + recencyBoost * 0.2;
+
   return Math.min(100, Math.round(rawScore * 50));
 }
 

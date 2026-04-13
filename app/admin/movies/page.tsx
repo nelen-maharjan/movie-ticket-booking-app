@@ -1,3 +1,4 @@
+
 import { getMovies } from "@/app/actions/movies";
 import { AdminMoviesClient } from "@/components/admin/AdminMoviesClient";
 

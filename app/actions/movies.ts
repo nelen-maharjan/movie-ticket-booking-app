@@ -1,13 +1,10 @@
 "use server";
 
+import { calculatePopularityScore } from "@/lib/algorithms/popularity";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
-import { calculatePopularityScore } from "@/lib/algorithms";
 import { z } from "zod";
 
-/* =========================
-   ZOD SCHEMA
-========================= */
 
 const MovieStatusEnum = z.enum([
   "NOW_SHOWING",
@@ -77,11 +74,6 @@ export async function getMovies(filters?: {
 
   return movies as unknown as import("@/lib/types/movie").Movie[];
 }
-
-/* =========================
-   GET SINGLE MOVIE
-========================= */
-
 export async function getMovieById(id: string) {
   return db.movie.findUnique({
     where: { id },
