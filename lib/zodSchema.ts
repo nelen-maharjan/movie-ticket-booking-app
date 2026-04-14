@@ -40,6 +40,17 @@ export const MovieUpdateSchema = MovieSchema.partial();
 export type MovieInput = z.infer<typeof MovieSchema>;
 export type MovieUpdateInput = z.infer<typeof MovieUpdateSchema>;
 
+const optionalUrl = z
+  .string()
+  .trim()
+  .transform((val) => (val === "" ? "" : val))
+  .refine(
+    (val) => val === "" || z.string().url().safeParse(val).success,
+    {
+      message: "Invalid URL",
+    }
+  );
+
 export const MovieClientSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(10, "Description must be at least 10 characters"),
@@ -49,17 +60,14 @@ export const MovieClientSchema = z.object({
   language: z.string().min(1),
   releaseDate: z.string().min(1),
 
-  posterUrl: z
-    .string()
-    .url("Invalid poster URL")
-    .or(z.literal("")),
+  posterUrl: optionalUrl,
+  backdropUrl: optionalUrl,
 
-  backdropUrl: z
+  trailerUrl: z
     .string()
-    .url("Invalid backdrop URL")
+    .trim()
+    .optional()
     .or(z.literal("")),
-
-  trailerUrl: z.string().optional(),
 
   cast: z.array(z.string()).min(1, "Add at least one cast member"),
   director: z.string().min(1),
