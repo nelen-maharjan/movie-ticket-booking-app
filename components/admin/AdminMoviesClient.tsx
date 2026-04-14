@@ -210,78 +210,221 @@ export function AdminMoviesClient({ movies }: { movies: Movie[] }) {
 
       {/* Modal */}
       {showForm && (
-        <div className="fixed inset-0 z-50 bg-black/70 flex justify-center p-4 overflow-y-auto">
-          <div className="w-full max-w-2xl bg-background p-6 rounded-xl">
-            <form
-              onSubmit={handleSubmit}
-              className="grid grid-cols-2 gap-4"
-            >
-              {Object.keys(emptyForm).map((key) => (
-                <div key={key} className="col-span-2">
-                  <Label>{key}</Label>
+  <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex justify-center items-start p-6 overflow-y-auto">
+    <div className="w-full max-w-3xl bg-background rounded-2xl shadow-2xl border p-6 space-y-6">
 
-                  <Input
-                    value={String((form as never)[key] ?? "")}
-                    onChange={(e) =>
-                      setForm((prev) => ({
-                        ...prev,
-                        [key]: e.target.value,
-                      }))
-                    }
-                  />
-                </div>
-              ))}
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-semibold">
+          {editing ? "Edit Movie" : "Add Movie"}
+        </h2>
+        <Button variant="ghost" onClick={() => setShowForm(false)}>
+          ✕
+        </Button>
+      </div>
 
-              {/* Genres */}
-              <div className="col-span-2 flex flex-wrap gap-2">
-                {GENRES.map((g) => (
-                  <button
-                    key={g}
-                    type="button"
-                    onClick={() =>
-                      setForm((p) => ({
-                        ...p,
-                        genre: p.genre.includes(g)
-                          ? p.genre.filter((x) => x !== g)
-                          : [...p.genre, g],
-                      }))
-                    }
-                    className="px-2 py-1 border rounded text-sm"
-                  >
-                    {g}
-                  </button>
-                ))}
-              </div>
+      <form onSubmit={handleSubmit} className="space-y-6">
 
-              {/* Status */}
-              <div className="col-span-2 flex gap-2">
-                {STATUSES.map((s) => (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() =>
-                      setForm((p) => ({
-                        ...p,
-                        status: s,
-                      }))
-                    }
-                    className="px-2 py-1 border rounded text-sm"
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
+        {/* BASIC */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label>Title</Label>
+            <Input
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+            />
+          </div>
 
-              <Button type="submit" disabled={isPending}>
-                {isPending && (
-                  <Loader2 className="mr-2 animate-spin" />
-                )}
-                {editing ? "Update" : "Create"}
-              </Button>
-            </form>
+          <div>
+            <Label>Director</Label>
+            <Input
+              value={form.director}
+              onChange={(e) => setForm({ ...form, director: e.target.value })}
+            />
+          </div>
+
+          <div className="col-span-2">
+            <Label>Description</Label>
+            <textarea
+              className="w-full rounded-md border bg-background p-2 text-sm"
+              rows={3}
+              value={form.description}
+              onChange={(e) =>
+                setForm({ ...form, description: e.target.value })
+              }
+            />
           </div>
         </div>
-      )}
+
+        {/* DETAILS */}
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <Label>Duration (min)</Label>
+            <Input
+              type="number"
+              value={form.duration}
+              onChange={(e) =>
+                setForm({ ...form, duration: Number(e.target.value) })
+              }
+            />
+          </div>
+
+          <div>
+            <Label>Rating</Label>
+            <Input
+              type="number"
+              step="0.1"
+              value={form.rating}
+              onChange={(e) =>
+                setForm({ ...form, rating: Number(e.target.value) })
+              }
+            />
+          </div>
+
+          <div>
+            <Label>Language</Label>
+            <Input
+              value={form.language}
+              onChange={(e) =>
+                setForm({ ...form, language: e.target.value })
+              }
+            />
+          </div>
+
+          <div>
+            <Label>Release Date</Label>
+            <Input
+              type="date"
+              value={form.releaseDate}
+              onChange={(e) =>
+                setForm({ ...form, releaseDate: e.target.value })
+              }
+            />
+          </div>
+        </div>
+
+        {/* MEDIA */}
+        <div className="space-y-3">
+          <div>
+            <Label>Poster URL</Label>
+            <Input
+              value={form.posterUrl}
+              onChange={(e) =>
+                setForm({ ...form, posterUrl: e.target.value })
+              }
+            />
+          </div>
+
+          <div>
+            <Label>Backdrop URL</Label>
+            <Input
+              value={form.backdropUrl}
+              onChange={(e) =>
+                setForm({ ...form, backdropUrl: e.target.value })
+              }
+            />
+          </div>
+
+          <div>
+            <Label>Trailer URL</Label>
+            <Input
+              value={form.trailerUrl}
+              onChange={(e) =>
+                setForm({ ...form, trailerUrl: e.target.value })
+              }
+            />
+          </div>
+        </div>
+
+        {/* CAST */}
+        <div>
+          <Label>Cast (comma separated)</Label>
+          <Input
+            value={form.cast}
+            onChange={(e) =>
+              setForm({ ...form, cast: e.target.value })
+            }
+          />
+        </div>
+
+        {/* GENRES */}
+        <div>
+          <Label>Genres</Label>
+          <div className="flex flex-wrap gap-2 mt-2">
+            {GENRES.map((g) => {
+              const active = form.genre.includes(g);
+              return (
+                <button
+                  key={g}
+                  type="button"
+                  onClick={() =>
+                    setForm((p) => ({
+                      ...p,
+                      genre: active
+                        ? p.genre.filter((x) => x !== g)
+                        : [...p.genre, g],
+                    }))
+                  }
+                  className={`px-3 py-1 rounded-full text-sm border transition
+                    ${active
+                      ? "bg-primary text-white border-primary"
+                      : "hover:bg-muted"
+                    }`}
+                >
+                  {g}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* STATUS */}
+        <div>
+          <Label>Status</Label>
+          <div className="flex gap-2 mt-2">
+            {STATUSES.map((s) => {
+              const active = form.status === s;
+              return (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() =>
+                    setForm({ ...form, status: s })
+                  }
+                  className={`px-3 py-1 rounded-md text-sm border transition
+                    ${active
+                      ? "bg-primary text-white border-primary"
+                      : "hover:bg-muted"
+                    }`}
+                >
+                  {s.replace("_", " ")}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* ACTIONS */}
+        <div className="flex justify-end gap-3 pt-4">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => setShowForm(false)}
+          >
+            Cancel
+          </Button>
+
+          <Button type="submit" disabled={isPending}>
+            {isPending && (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            )}
+            {editing ? "Update Movie" : "Create Movie"}
+          </Button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
     </div>
   );
 }
