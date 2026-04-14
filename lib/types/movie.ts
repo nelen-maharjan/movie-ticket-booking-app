@@ -37,7 +37,7 @@ export type MovieForm = {
   posterUrl: string;
   backdropUrl: string;
   trailerUrl: string;
-  cast: string[] | string; // important (because of input)
+  cast: string[]; 
   director: string;
   status: MovieStatus;
   rating: number;

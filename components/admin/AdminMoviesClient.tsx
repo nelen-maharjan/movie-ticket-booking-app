@@ -30,7 +30,7 @@ const emptyForm: MovieForm = {
   posterUrl: "",
   backdropUrl: "",
   trailerUrl: "",
-  cast: "",
+  cast: [],
   director: "",
   status: "NOW_SHOWING",
   rating: 7.0,
@@ -49,7 +49,7 @@ function movieToForm(m: Movie): MovieForm {
     backdropUrl: m.backdropUrl ?? "",
     trailerUrl: m.trailerUrl ?? "",
 
-    cast: m.cast.join(", "),
+    cast: m.cast,
     director: m.director,
     status: m.status as MovieStatus,
     rating: m.rating,
