@@ -19,16 +19,6 @@ const STATUSES: MovieStatus[] = [
   "ENDED",
 ];
 
-type Props = {
-  open: boolean;
-  onClose: () => void;
-  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-  form: MovieForm;
-  setForm: React.Dispatch<React.SetStateAction<MovieForm>>;
-  isPending: boolean;
-  editing: boolean;
-};
-
 export function MovieFormModal({
   open,
   onClose,
@@ -37,7 +27,15 @@ export function MovieFormModal({
   setForm,
   isPending,
   editing,
-}: Props) {
+}: {
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  form: MovieForm;
+  setForm: React.Dispatch<React.SetStateAction<MovieForm>>;
+  isPending: boolean;
+  editing: boolean;
+}) {
   return (
     <AnimatePresence>
       {open && (
@@ -45,109 +43,161 @@ export function MovieFormModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex justify-center items-start p-6 overflow-y-auto"
+          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex justify-center items-start p-6 overflow-y-auto"
         >
           <motion.div
             initial={{ y: 40, scale: 0.96, opacity: 0 }}
             animate={{ y: 0, scale: 1, opacity: 1 }}
             exit={{ y: 20, scale: 0.98, opacity: 0 }}
             transition={{ type: "spring", stiffness: 120, damping: 18 }}
-            className="w-full max-w-3xl bg-background rounded-2xl shadow-2xl border p-6 space-y-6"
+            className="w-full max-w-3xl rounded-2xl border bg-background/95 backdrop-blur-xl shadow-[0_20px_80px_rgba(0,0,0,0.6)] p-6 space-y-8"
           >
-            {/* Header */}
+            {/* HEADER */}
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-semibold">
-                {editing ? "Edit Movie" : "Add Movie"}
-              </h2>
-              <Button variant="ghost" onClick={onClose}>
+              <div>
+                <h2 className="text-2xl font-semibold tracking-tight">
+                  {editing ? "Edit Movie" : "Add Movie"}
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  Manage movie details and metadata
+                </p>
+              </div>
+
+              <Button
+                variant="ghost"
+                onClick={onClose}
+                className="hover:rotate-90 transition"
+              >
                 ✕
               </Button>
             </div>
 
-            <form onSubmit={onSubmit} className="space-y-6">
+            <form onSubmit={onSubmit} className="space-y-8">
 
-              {/* BASIC */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Title</Label>
-                  <Input
-                    value={form.title}
-                    onChange={(e) =>
-                      setForm({ ...form, title: e.target.value })
-                    }
-                  />
-                </div>
+              {/* BASIC INFO */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                  Basic Info
+                </h3>
 
-                <div>
-                  <Label>Director</Label>
-                  <Input
-                    value={form.director}
-                    onChange={(e) =>
-                      setForm({ ...form, director: e.target.value })
-                    }
-                  />
-                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <Label>Title</Label>
+                    <Input
+                      className="focus:ring-2 focus:ring-primary/40"
+                      value={form.title}
+                      onChange={(e) =>
+                        setForm({ ...form, title: e.target.value })
+                      }
+                    />
+                  </div>
 
-                <div className="col-span-2">
-                  <Label>Description</Label>
-                  <textarea
-                    className="w-full rounded-md border p-2"
-                    rows={3}
-                    value={form.description}
-                    onChange={(e) =>
-                      setForm({ ...form, description: e.target.value })
-                    }
-                  />
+                  <div className="space-y-1">
+                    <Label>Director</Label>
+                    <Input
+                      value={form.director}
+                      onChange={(e) =>
+                        setForm({ ...form, director: e.target.value })
+                      }
+                    />
+                  </div>
+
+                  <div className="col-span-2 space-y-1">
+                    <Label>Description</Label>
+                    <textarea
+                      className="w-full rounded-md border bg-background p-2 text-sm focus:ring-2 focus:ring-primary/40"
+                      rows={3}
+                      value={form.description}
+                      onChange={(e) =>
+                        setForm({ ...form, description: e.target.value })
+                      }
+                    />
+                  </div>
                 </div>
               </div>
 
               {/* DETAILS */}
-              <div className="grid grid-cols-3 gap-4">
-                <Input
-                  type="number"
-                  placeholder="Duration"
-                  value={form.duration}
-                  onChange={(e) =>
-                    setForm({ ...form, duration: Number(e.target.value) })
-                  }
-                />
+              <div className="space-y-4">
+                <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                  Details
+                </h3>
 
-                <Input
-                  type="number"
-                  step="0.1"
-                  placeholder="Rating"
-                  value={form.rating}
-                  onChange={(e) =>
-                    setForm({ ...form, rating: Number(e.target.value) })
-                  }
-                />
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="space-y-1">
+                    <Label>Duration (min)</Label>
+                    <Input
+                      type="number"
+                      value={form.duration}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          duration: Number(e.target.value),
+                        })
+                      }
+                    />
+                  </div>
 
-                <Input
-                  placeholder="Language"
-                  value={form.language}
-                  onChange={(e) =>
-                    setForm({ ...form, language: e.target.value })
-                  }
-                />
+                  <div className="space-y-1">
+                    <Label>Rating</Label>
+                    <Input
+                      type="number"
+                      step="0.1"
+                      value={form.rating}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          rating: Number(e.target.value),
+                        })
+                      }
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label>Language</Label>
+                    <Input
+                      value={form.language}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          language: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label>Release Date</Label>
+                    <Input
+                      type="date"
+                      value={form.releaseDate}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          releaseDate: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                </div>
               </div>
 
-              {/* STATUS ✅ FIXED */}
-              <div>
+              {/* STATUS */}
+              <div className="space-y-3">
                 <Label>Status</Label>
-                <div className="flex gap-2 mt-2">
+                <div className="flex gap-2 flex-wrap">
                   {STATUSES.map((s) => {
                     const active = form.status === s;
                     return (
                       <motion.button
-                        whileTap={{ scale: 0.9 }}
+                        whileTap={{ scale: 0.92 }}
                         key={s}
                         type="button"
                         onClick={() =>
                           setForm({ ...form, status: s })
                         }
-                        className={`px-3 py-1 rounded-md text-sm border
+                        className={`px-4 py-1.5 rounded-full text-sm border transition
                           ${active
-                            ? "bg-primary text-white"
+                            ? "bg-primary text-white border-primary shadow-md"
                             : "hover:bg-muted"
                           }`}
                       >
@@ -159,14 +209,14 @@ export function MovieFormModal({
               </div>
 
               {/* GENRES */}
-              <div>
+              <div className="space-y-3">
                 <Label>Genres</Label>
-                <div className="flex flex-wrap gap-2 mt-2">
+                <div className="flex flex-wrap gap-2">
                   {GENRES.map((g) => {
                     const active = form.genre.includes(g);
                     return (
                       <motion.button
-                        whileTap={{ scale: 0.9 }}
+                        whileTap={{ scale: 0.92 }}
                         key={g}
                         type="button"
                         onClick={() =>
@@ -177,9 +227,9 @@ export function MovieFormModal({
                               : [...p.genre, g],
                           }))
                         }
-                        className={`px-3 py-1 rounded-full text-sm border
+                        className={`px-3 py-1 rounded-full text-sm border transition
                           ${active
-                            ? "bg-primary text-white"
+                            ? "bg-primary text-white border-primary shadow"
                             : "hover:bg-muted"
                           }`}
                       >
@@ -191,17 +241,19 @@ export function MovieFormModal({
               </div>
 
               {/* ACTIONS */}
-              <div className="flex justify-end gap-3">
+              <div className="flex justify-end gap-3 pt-4 border-t">
                 <Button variant="ghost" onClick={onClose}>
                   Cancel
                 </Button>
 
-                <Button type="submit" disabled={isPending}>
-                  {isPending && (
-                    <Loader2 className="mr-2 animate-spin" />
-                  )}
-                  {editing ? "Update" : "Create"}
-                </Button>
+                <motion.div whileTap={{ scale: 0.95 }}>
+                  <Button type="submit" disabled={isPending}>
+                    {isPending && (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    )}
+                    {editing ? "Update Movie" : "Create Movie"}
+                  </Button>
+                </motion.div>
               </div>
             </form>
           </motion.div>

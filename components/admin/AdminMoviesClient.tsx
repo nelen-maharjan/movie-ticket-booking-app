@@ -3,10 +3,10 @@
 import { useState, useTransition } from "react";
 
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
 
 import { createMovie, updateMovie, deleteMovie } from "@/app/actions/movies";
 import { formatDuration } from "@/lib/utils";
+import { MovieClientSchema } from "@/lib/zodSchema";
 
 import {
   Plus,
@@ -18,6 +18,7 @@ import {
 import type { Movie, MovieForm, MovieStatus } from "@/lib/types/movie";
 
 import { MovieFormModal } from "./MovieFormModal";
+import { toast } from "react-toastify";
 
 const emptyForm: MovieForm = {
   title: "",
@@ -61,7 +62,6 @@ export function AdminMoviesClient({ movies }: { movies: Movie[] }) {
   const [form, setForm] = useState<MovieForm>(emptyForm);
 
   const [isPending, startTransition] = useTransition();
-  const { toast } = useToast();
 
   const openCreate = () => {
     setForm(emptyForm);
@@ -76,62 +76,61 @@ export function AdminMoviesClient({ movies }: { movies: Movie[] }) {
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    startTransition(async () => {
-      try {
-        const payload = {
-  ...form,
-  duration: Number(form.duration),
-  rating: Number(form.rating),
-
+  const payload = {
+    ...form,
+    duration: Number(form.duration),
+    rating: Number(form.rating),
     cast: Array.isArray(form.cast)
-    ? form.cast
-    : form.cast
-        .split(",")
-        .map((c: string) => c.trim())
-        .filter((c: string) => c.length > 0),
+      ? form.cast
+      : form.cast
+          .split(",")
+          .map((c) => c.trim())
+          .filter(Boolean),
+  };
+
+  // ✅ CLIENT VALIDATION (safe)
+  const result = MovieClientSchema.safeParse(payload);
+
+  if (!result.success) {
+    result.error.issues.forEach((err) => {
+  toast.error(err.message);
+});
+    return;
+  }
+
+  startTransition(async () => {
+    try {
+      if (editing) {
+        await updateMovie(editing.id, result.data);
+        toast.success("Movie updated 🎬");
+      } else {
+        await createMovie(result.data);
+        toast.success("Movie created 🎉");
+      }
+
+      setShowForm(false);
+    } catch (err) {
+      console.log(err)
+      toast.error("Something went wrong on server");
+    }
+  });
 };
 
-        if (editing) {
-          await updateMovie(editing.id, payload);
-        } else {
-          await createMovie(payload);
-        }
-
-        toast({
-          title: editing ? "Movie updated" : "Movie created",
-        });
-
-        setShowForm(false);
-      } catch (error) {
-        toast({
-          title: "Error",
-          description:
-            error instanceof Error ? error.message : "Something went wrong",
-          variant: "destructive",
-        });
-      }
-    });
-  };
-
   const handleDelete = (id: string) => {
-    if (!confirm("Delete this movie?")) return;
+  if (!confirm("Delete this movie?")) return;
 
-    startTransition(async () => {
-      try {
-        await deleteMovie(id);
-        toast({ title: "Movie deleted" });
-      } catch (error) {
-        toast({
-          title: "Error",
-          description:
-            error instanceof Error ? error.message : "Something went wrong",
-          variant: "destructive",
-        });
-      }
-    });
-  };
+  startTransition(async () => {
+    try {
+      await deleteMovie(id);
+      toast.success("Movie deleted 🗑️");
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to delete movie");
+    }
+  });
+};
 
   return (
     <div>
