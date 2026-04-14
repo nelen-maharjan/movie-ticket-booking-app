@@ -20,6 +20,8 @@ import {
 
 import type { Movie, MovieForm, MovieStatus } from "@/lib/types/movie";
 
+import { motion, AnimatePresence } from "framer-motion";
+
 const GENRES = [
   "Action","Comedy","Drama","Horror","Sci-Fi","Thriller",
   "Romance","Animation","Documentary","Crime","Fantasy","Adventure"
@@ -47,9 +49,6 @@ const emptyForm: MovieForm = {
   rating: 7.0,
 };
 
-/* ---------------------------
-   SAFE MAPPER (IMPORTANT FIX)
-----------------------------*/
 function movieToForm(m: Movie): MovieForm {
   return {
     title: m.title,
@@ -209,222 +208,214 @@ export function AdminMoviesClient({ movies }: { movies: Movie[] }) {
       </div>
 
       {/* Modal */}
-      {showForm && (
-  <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex justify-center items-start p-6 overflow-y-auto">
-    <div className="w-full max-w-3xl bg-background rounded-2xl shadow-2xl border p-6 space-y-6">
-
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-semibold">
-          {editing ? "Edit Movie" : "Add Movie"}
-        </h2>
-        <Button variant="ghost" onClick={() => setShowForm(false)}>
-          ✕
-        </Button>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-6">
-
-        {/* BASIC */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label>Title</Label>
-            <Input
-              value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-            />
-          </div>
-
-          <div>
-            <Label>Director</Label>
-            <Input
-              value={form.director}
-              onChange={(e) => setForm({ ...form, director: e.target.value })}
-            />
-          </div>
-
-          <div className="col-span-2">
-            <Label>Description</Label>
-            <textarea
-              className="w-full rounded-md border bg-background p-2 text-sm"
-              rows={3}
-              value={form.description}
-              onChange={(e) =>
-                setForm({ ...form, description: e.target.value })
-              }
-            />
-          </div>
+      <AnimatePresence>
+  {showForm && (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex justify-center items-start p-6 overflow-y-auto"
+    >
+      <motion.div
+        initial={{ y: 40, scale: 0.96, opacity: 0 }}
+        animate={{ y: 0, scale: 1, opacity: 1 }}
+        exit={{ y: 20, scale: 0.98, opacity: 0 }}
+        transition={{ type: "spring", stiffness: 120, damping: 18 }}
+        className="w-full max-w-3xl bg-background rounded-2xl shadow-2xl border p-6 space-y-6"
+      >
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-semibold tracking-tight">
+            {editing ? "Edit Movie" : "Add Movie"}
+          </h2>
+          <Button
+            variant="ghost"
+            onClick={() => setShowForm(false)}
+            className="hover:rotate-90 transition"
+          >
+            ✕
+          </Button>
         </div>
 
-        {/* DETAILS */}
-        <div className="grid grid-cols-3 gap-4">
-          <div>
-            <Label>Duration (min)</Label>
-            <Input
-              type="number"
-              value={form.duration}
-              onChange={(e) =>
-                setForm({ ...form, duration: Number(e.target.value) })
-              }
-            />
+        <form onSubmit={handleSubmit} className="space-y-6">
+
+          {/* BASIC */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <Label>Title</Label>
+              <Input
+                className="focus:ring-2 focus:ring-primary/50 transition"
+                value={form.title}
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-1">
+              <Label>Director</Label>
+              <Input
+                className="focus:ring-2 focus:ring-primary/50 transition"
+                value={form.director}
+                onChange={(e) =>
+                  setForm({ ...form, director: e.target.value })
+                }
+              />
+            </div>
+
+            <div className="col-span-2 space-y-1">
+              <Label>Description</Label>
+              <textarea
+                className="w-full rounded-md border bg-background p-2 text-sm focus:ring-2 focus:ring-primary/50 transition"
+                rows={3}
+                value={form.description}
+                onChange={(e) =>
+                  setForm({ ...form, description: e.target.value })
+                }
+              />
+            </div>
           </div>
 
-          <div>
-            <Label>Rating</Label>
-            <Input
-              type="number"
-              step="0.1"
-              value={form.rating}
-              onChange={(e) =>
-                setForm({ ...form, rating: Number(e.target.value) })
-              }
-            />
+          {/* DETAILS */}
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-1">
+              <Label>Duration</Label>
+              <Input
+                type="number"
+                value={form.duration}
+                onChange={(e) =>
+                  setForm({ ...form, duration: Number(e.target.value) })
+                }
+              />
+            </div>
+
+            <div className="space-y-1">
+              <Label>Rating</Label>
+              <Input
+                type="number"
+                step="0.1"
+                value={form.rating}
+                onChange={(e) =>
+                  setForm({ ...form, rating: Number(e.target.value) })
+                }
+              />
+            </div>
+
+            <div className="space-y-1">
+              <Label>Language</Label>
+              <Input
+                value={form.language}
+                onChange={(e) =>
+                  setForm({ ...form, language: e.target.value })
+                }
+              />
+            </div>
+
+            <div className="space-y-1">
+              <Label>Release Date</Label>
+              <Input
+                type="date"
+                value={form.releaseDate}
+                onChange={(e) =>
+                  setForm({ ...form, releaseDate: e.target.value })
+                }
+              />
+            </div>
           </div>
 
-          <div>
-            <Label>Language</Label>
-            <Input
-              value={form.language}
-              onChange={(e) =>
-                setForm({ ...form, language: e.target.value })
-              }
+          {/* IMAGE PREVIEW 🔥 */}
+          {form.posterUrl && (
+            <motion.img
+              key={form.posterUrl}
+              src={form.posterUrl}
+              alt="poster preview"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="w-full h-48 object-cover rounded-lg border"
             />
-          </div>
+          )}
 
-          <div>
-            <Label>Release Date</Label>
+          {/* MEDIA */}
+          <div className="space-y-3">
             <Input
-              type="date"
-              value={form.releaseDate}
-              onChange={(e) =>
-                setForm({ ...form, releaseDate: e.target.value })
-              }
-            />
-          </div>
-        </div>
-
-        {/* MEDIA */}
-        <div className="space-y-3">
-          <div>
-            <Label>Poster URL</Label>
-            <Input
+              placeholder="Poster URL"
               value={form.posterUrl}
               onChange={(e) =>
                 setForm({ ...form, posterUrl: e.target.value })
               }
             />
-          </div>
 
-          <div>
-            <Label>Backdrop URL</Label>
             <Input
+              placeholder="Backdrop URL"
               value={form.backdropUrl}
               onChange={(e) =>
                 setForm({ ...form, backdropUrl: e.target.value })
               }
             />
-          </div>
 
-          <div>
-            <Label>Trailer URL</Label>
             <Input
+              placeholder="Trailer URL"
               value={form.trailerUrl}
               onChange={(e) =>
                 setForm({ ...form, trailerUrl: e.target.value })
               }
             />
           </div>
-        </div>
 
-        {/* CAST */}
-        <div>
-          <Label>Cast (comma separated)</Label>
-          <Input
-            value={form.cast}
-            onChange={(e) =>
-              setForm({ ...form, cast: e.target.value })
-            }
-          />
-        </div>
-
-        {/* GENRES */}
-        <div>
-          <Label>Genres</Label>
-          <div className="flex flex-wrap gap-2 mt-2">
-            {GENRES.map((g) => {
-              const active = form.genre.includes(g);
-              return (
-                <button
-                  key={g}
-                  type="button"
-                  onClick={() =>
-                    setForm((p) => ({
-                      ...p,
-                      genre: active
-                        ? p.genre.filter((x) => x !== g)
-                        : [...p.genre, g],
-                    }))
-                  }
-                  className={`px-3 py-1 rounded-full text-sm border transition
-                    ${active
-                      ? "bg-primary text-white border-primary"
-                      : "hover:bg-muted"
-                    }`}
-                >
-                  {g}
-                </button>
-              );
-            })}
+          {/* GENRES */}
+          <div>
+            <Label>Genres</Label>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {GENRES.map((g) => {
+                const active = form.genre.includes(g);
+                return (
+                  <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    key={g}
+                    type="button"
+                    onClick={() =>
+                      setForm((p) => ({
+                        ...p,
+                        genre: active
+                          ? p.genre.filter((x) => x !== g)
+                          : [...p.genre, g],
+                      }))
+                    }
+                    className={`px-3 py-1 rounded-full text-sm border transition
+                      ${active
+                        ? "bg-primary text-white border-primary shadow"
+                        : "hover:bg-muted"
+                      }`}
+                  >
+                    {g}
+                  </motion.button>
+                );
+              })}
+            </div>
           </div>
-        </div>
 
-        {/* STATUS */}
-        <div>
-          <Label>Status</Label>
-          <div className="flex gap-2 mt-2">
-            {STATUSES.map((s) => {
-              const active = form.status === s;
-              return (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={() =>
-                    setForm({ ...form, status: s })
-                  }
-                  className={`px-3 py-1 rounded-md text-sm border transition
-                    ${active
-                      ? "bg-primary text-white border-primary"
-                      : "hover:bg-muted"
-                    }`}
-                >
-                  {s.replace("_", " ")}
-                </button>
-              );
-            })}
+          {/* ACTIONS */}
+          <div className="flex justify-end gap-3 pt-4">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setShowForm(false)}
+            >
+              Cancel
+            </Button>
+
+            <motion.div whileTap={{ scale: 0.95 }}>
+              <Button type="submit" disabled={isPending}>
+                {isPending && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                {editing ? "Update Movie" : "Create Movie"}
+              </Button>
+            </motion.div>
           </div>
-        </div>
-
-        {/* ACTIONS */}
-        <div className="flex justify-end gap-3 pt-4">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => setShowForm(false)}
-          >
-            Cancel
-          </Button>
-
-          <Button type="submit" disabled={isPending}>
-            {isPending && (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            )}
-            {editing ? "Update Movie" : "Create Movie"}
-          </Button>
-        </div>
-      </form>
-    </div>
-  </div>
-)}
-    </div>
+        </form>
+      </motion.div>
+    </motion.div>
+  )}
+  </AnimatePresence>
+</div>
   );
 }
