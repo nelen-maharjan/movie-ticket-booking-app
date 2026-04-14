@@ -3,42 +3,15 @@
 import { calculatePopularityScore } from "@/lib/algorithms/popularity";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
-import { z } from "zod";
+import {
+  MovieSchema,
+  MovieUpdateSchema,
+  type MovieInput,
+  type MovieUpdateInput,
+} from "@/lib/zodSchema";
 
 
-const MovieStatusEnum = z.enum([
-  "NOW_SHOWING",
-  "COMING_SOON",
-  "ENDED",
-]);
-
-export const MovieSchema = z.object({
-  title: z.string().min(1),
-  description: z.string().min(10),
-  genre: z.array(z.string()).min(1),
-
-  duration: z.number().min(1),
-  language: z.string(),
-  releaseDate: z.string(),
-
-  posterUrl: z.string().url(),
-  backdropUrl: z.string().url().optional().or(z.literal("")),
-  trailerUrl: z.string().optional().or(z.literal("")),
-
-  cast: z.array(z.string()),
-  director: z.string(),
-
-  status: MovieStatusEnum,
-  rating: z.number().min(0).max(10),
-});
-
-const MovieUpdateSchema = MovieSchema.partial();
-
-/* =========================
-   HELPERS
-========================= */
-
-function transformMovieInput(data: z.infer<typeof MovieSchema>) {
+function transformMovieInput(data: MovieInput) {
   return {
     ...data,
     releaseDate: new Date(data.releaseDate),
@@ -46,10 +19,6 @@ function transformMovieInput(data: z.infer<typeof MovieSchema>) {
     trailerUrl: data.trailerUrl || null,
   };
 }
-
-/* =========================
-   GET ALL MOVIES
-========================= */
 
 export async function getMovies(filters?: {
   status?: string;
@@ -105,11 +74,7 @@ export async function getMovieById(id: string) {
   });
 }
 
-/* =========================
-   CREATE MOVIE
-========================= */
-
-export async function createMovie(data: z.infer<typeof MovieSchema>) {
+export async function createMovie(data: MovieInput) {
   const parsed = MovieSchema.parse(data);
 
   const movie = await db.movie.create({
@@ -122,13 +87,9 @@ export async function createMovie(data: z.infer<typeof MovieSchema>) {
   return movie;
 }
 
-/* =========================
-   UPDATE MOVIE
-========================= */
-
 export async function updateMovie(
   id: string,
-  data: z.infer<typeof MovieUpdateSchema>
+  data: MovieUpdateInput
 ) {
   const parsed = MovieUpdateSchema.parse(data);
 
@@ -157,10 +118,6 @@ export async function updateMovie(
   return movie;
 }
 
-/* =========================
-   DELETE MOVIE
-========================= */
-
 export async function deleteMovie(id: string) {
   await db.movie.delete({
     where: { id },
@@ -171,10 +128,6 @@ export async function deleteMovie(id: string) {
 
   return { success: true };
 }
-
-/* =========================
-   POPULARITY SCORE REFRESH
-========================= */
 
 export async function refreshPopularityScores() {
   const movies = await db.movie.findMany({
