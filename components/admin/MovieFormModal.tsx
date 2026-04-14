@@ -19,6 +19,16 @@ const STATUSES: MovieStatus[] = [
   "ENDED",
 ];
 
+type Props = {
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  form: MovieForm;
+  setForm: React.Dispatch<React.SetStateAction<MovieForm>>;
+  isPending: boolean;
+  editing: boolean;
+};
+
 export function MovieFormModal({
   open,
   onClose,
@@ -27,15 +37,7 @@ export function MovieFormModal({
   setForm,
   isPending,
   editing,
-}: {
-  open: boolean;
-  onClose: () => void;
-  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-  form: MovieForm;
-  setForm: React.Dispatch<React.SetStateAction<MovieForm>>;
-  isPending: boolean;
-  editing: boolean;
-}) {
+}: Props) {
   return (
     <AnimatePresence>
       {open && (
@@ -50,16 +52,16 @@ export function MovieFormModal({
             animate={{ y: 0, scale: 1, opacity: 1 }}
             exit={{ y: 20, scale: 0.98, opacity: 0 }}
             transition={{ type: "spring", stiffness: 120, damping: 18 }}
-            className="w-full max-w-3xl rounded-2xl border bg-background/95 backdrop-blur-xl shadow-[0_20px_80px_rgba(0,0,0,0.6)] p-6 space-y-8"
+            className="w-full max-w-3xl rounded-2xl border bg-background/95 backdrop-blur-xl shadow-[0_20px_100px_rgba(0,0,0,0.65)] p-6"
           >
             {/* HEADER */}
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-start mb-6">
               <div>
                 <h2 className="text-2xl font-semibold tracking-tight">
                   {editing ? "Edit Movie" : "Add Movie"}
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  Manage movie details and metadata
+                  Manage movie details, metadata and publishing state
                 </p>
               </div>
 
@@ -75,8 +77,12 @@ export function MovieFormModal({
             <form onSubmit={onSubmit} className="space-y-8">
 
               {/* BASIC INFO */}
-              <div className="space-y-4">
-                <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+              <motion.section
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-4"
+              >
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
                   Basic Info
                 </h3>
 
@@ -84,7 +90,7 @@ export function MovieFormModal({
                   <div className="space-y-1">
                     <Label>Title</Label>
                     <Input
-                      className="focus:ring-2 focus:ring-primary/40"
+                      className="transition focus:ring-2 focus:ring-primary/40 hover:border-primary/40"
                       value={form.title}
                       onChange={(e) =>
                         setForm({ ...form, title: e.target.value })
@@ -95,6 +101,7 @@ export function MovieFormModal({
                   <div className="space-y-1">
                     <Label>Director</Label>
                     <Input
+                      className="transition focus:ring-2 focus:ring-primary/40 hover:border-primary/40"
                       value={form.director}
                       onChange={(e) =>
                         setForm({ ...form, director: e.target.value })
@@ -105,7 +112,7 @@ export function MovieFormModal({
                   <div className="col-span-2 space-y-1">
                     <Label>Description</Label>
                     <textarea
-                      className="w-full rounded-md border bg-background p-2 text-sm focus:ring-2 focus:ring-primary/40"
+                      className="w-full rounded-md border bg-background p-3 text-sm transition resize-none focus:ring-2 focus:ring-primary/40 hover:border-primary/40"
                       rows={3}
                       value={form.description}
                       onChange={(e) =>
@@ -114,19 +121,26 @@ export function MovieFormModal({
                     />
                   </div>
                 </div>
-              </div>
+              </motion.section>
+
+              <div className="h-px bg-linear-to-r from-transparent via-border to-transparent" />
 
               {/* DETAILS */}
-              <div className="space-y-4">
-                <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+              <motion.section
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-4"
+              >
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
                   Details
                 </h3>
 
                 <div className="grid grid-cols-3 gap-4">
                   <div className="space-y-1">
-                    <Label>Duration (min)</Label>
+                    <Label>Duration</Label>
                     <Input
                       type="number"
+                      className="transition focus:ring-2 focus:ring-primary/40 hover:border-primary/40"
                       value={form.duration}
                       onChange={(e) =>
                         setForm({
@@ -142,6 +156,7 @@ export function MovieFormModal({
                     <Input
                       type="number"
                       step="0.1"
+                      className="transition focus:ring-2 focus:ring-primary/40 hover:border-primary/40"
                       value={form.rating}
                       onChange={(e) =>
                         setForm({
@@ -155,6 +170,7 @@ export function MovieFormModal({
                   <div className="space-y-1">
                     <Label>Language</Label>
                     <Input
+                      className="transition focus:ring-2 focus:ring-primary/40 hover:border-primary/40"
                       value={form.language}
                       onChange={(e) =>
                         setForm({
@@ -169,6 +185,7 @@ export function MovieFormModal({
                     <Label>Release Date</Label>
                     <Input
                       type="date"
+                      className="transition focus:ring-2 focus:ring-primary/40 hover:border-primary/40"
                       value={form.releaseDate}
                       onChange={(e) =>
                         setForm({
@@ -179,46 +196,57 @@ export function MovieFormModal({
                     />
                   </div>
                 </div>
-              </div>
+              </motion.section>
+
+              <div className="h-px bg-linear-to-r from-transparent via-border to-transparent" />
 
               {/* STATUS */}
-              <div className="space-y-3">
+              <motion.section className="space-y-3">
                 <Label>Status</Label>
+
                 <div className="flex gap-2 flex-wrap">
                   {STATUSES.map((s) => {
                     const active = form.status === s;
+
                     return (
                       <motion.button
-                        whileTap={{ scale: 0.92 }}
                         key={s}
                         type="button"
+                        whileTap={{ scale: 0.92 }}
+                        whileHover={{ scale: 1.05 }}
                         onClick={() =>
                           setForm({ ...form, status: s })
                         }
-                        className={`px-4 py-1.5 rounded-full text-sm border transition
-                          ${active
-                            ? "bg-primary text-white border-primary shadow-md"
-                            : "hover:bg-muted"
-                          }`}
+                        className={`
+                          px-4 py-2 rounded-full text-sm border transition
+                          ${
+                            active
+                              ? "bg-primary text-white border-primary shadow-lg shadow-primary/20"
+                              : "hover:bg-muted"
+                          }
+                        `}
                       >
                         {s.replace("_", " ")}
                       </motion.button>
                     );
                   })}
                 </div>
-              </div>
+              </motion.section>
 
               {/* GENRES */}
-              <div className="space-y-3">
+              <motion.section className="space-y-3">
                 <Label>Genres</Label>
+
                 <div className="flex flex-wrap gap-2">
                   {GENRES.map((g) => {
                     const active = form.genre.includes(g);
+
                     return (
                       <motion.button
-                        whileTap={{ scale: 0.92 }}
                         key={g}
                         type="button"
+                        whileTap={{ scale: 0.92 }}
+                        whileHover={{ scale: 1.05 }}
                         onClick={() =>
                           setForm((p) => ({
                             ...p,
@@ -227,21 +255,24 @@ export function MovieFormModal({
                               : [...p.genre, g],
                           }))
                         }
-                        className={`px-3 py-1 rounded-full text-sm border transition
-                          ${active
-                            ? "bg-primary text-white border-primary shadow"
-                            : "hover:bg-muted"
-                          }`}
+                        className={`
+                          px-3 py-1 rounded-full text-sm border transition
+                          ${
+                            active
+                              ? "bg-primary text-white border-primary shadow-md shadow-primary/20"
+                              : "hover:bg-muted"
+                          }
+                        `}
                       >
                         {g}
                       </motion.button>
                     );
                   })}
                 </div>
-              </div>
+              </motion.section>
 
               {/* ACTIONS */}
-              <div className="flex justify-end gap-3 pt-4 border-t">
+              <div className="sticky bottom-0 pt-4 border-t bg-background/80 backdrop-blur-md flex justify-end gap-3">
                 <Button variant="ghost" onClick={onClose}>
                   Cancel
                 </Button>
