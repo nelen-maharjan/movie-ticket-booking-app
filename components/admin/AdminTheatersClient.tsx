@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { createTheater, createScreen } from "@/app/actions/showtimes";
-import { useToast } from "@/components/ui/use-toast";
 import { Plus, X, Loader2, MapPin, Monitor, ChevronDown, ChevronUp } from "lucide-react";
 
 const SCREEN_TYPES = ["STANDARD","IMAX","4DX","DOLBY"];
@@ -17,13 +16,17 @@ export function AdminTheatersClient({ theaters }: { theaters: any[] }) {
   const [theaterForm, setTheaterForm] = useState({ name:"",location:"",city:"",address:"",phone:"" });
   const [screenForm, setScreenForm] = useState({ name:"",totalRows:8,totalCols:12,screenType:"STANDARD" });
   const [isPending, startTransition] = useTransition();
-  const { toast } = useToast();
 
   const handleTheater = (e: React.FormEvent) => {
     e.preventDefault();
     startTransition(async () => {
-      try { await createTheater(theaterForm); toast({ title:"Theater created" }); setShowTheaterForm(false); }
-      catch(e:any) { toast({ title:"Error", description:e.message, variant:"destructive" }); }
+      try { await createTheater(theaterForm); 
+        
+    }
+      catch(e:any) { 
+        console.log(e)
+        // toast({ title:"Error", description:e.message, variant:"destructive" }); 
+    }
     });
   };
 
