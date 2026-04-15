@@ -34,9 +34,9 @@ export const MovieSchema = z.object({
   language: z.string(),
   releaseDate: z.string(),
 
-  posterUrl: optionalUrl,        // ✅ FIXED
-  backdropUrl: optionalUrl,      // ✅ consistent
-  trailerUrl: optionalUrl,       // ✅ FIXED
+  posterUrl: optionalUrl,        
+  backdropUrl: optionalUrl,      
+  trailerUrl: optionalUrl,       
 
   cast: z.array(z.string()),
   director: z.string(),
