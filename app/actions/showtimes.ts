@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { estimateDemandScore, recommendSeats } from "@/lib/algorithms";
 import { z } from "zod";
+import { SeatType } from "@/lib/generated/prisma";
 
 export async function getShowtimeWithSeats(showtimeId: string) {
   const showtime = await db.showtime.findUnique({
@@ -112,21 +113,42 @@ export async function createScreen(data: {
   const rowLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
   const screen = await db.$transaction(async (tx) => {
-    const s = await tx.screen.create({ data: { theaterId, name, totalRows, totalCols, screenType } });
-    const seats = [];
-    for (let r = 0; r < totalRows; r++) {
-      for (let c = 1; c <= totalCols; c++) {
-        const row = rowLetters[r];
-        let type = "REGULAR";
-        if (r < 2) type = "RECLINER"; // front rows = recliner
-        else if (r < Math.floor(totalRows * 0.4)) type = "VIP";
-        else if (r < Math.floor(totalRows * 0.7)) type = "PREMIUM";
-        seats.push({ screenId: s.id, row, col: c, seatNumber: `${row}${c}`, type });
-      }
-    }
-    await tx.seat.createMany({ data: seats });
-    return s;
+  const s = await tx.screen.create({
+    data: { theaterId, name, totalRows, totalCols, screenType },
   });
+
+  const seats: {
+    screenId: string;
+    row: string;
+    col: number;
+    seatNumber: string;
+    type: SeatType;
+  }[] = [];
+
+  for (let r = 0; r < totalRows; r++) {
+    for (let c = 1; c <= totalCols; c++) {
+      const row = rowLetters[r];
+
+      let type: SeatType = "REGULAR";
+
+      if (r < 2) type = "RECLINER";
+      else if (r < Math.floor(totalRows * 0.4)) type = "VIP";
+      else if (r < Math.floor(totalRows * 0.7)) type = "PREMIUM";
+
+      seats.push({
+        screenId: s.id,
+        row,
+        col: c,
+        seatNumber: `${row}${c}`,
+        type,
+      });
+    }
+  }
+
+  await tx.seat.createMany({ data: seats });
+
+  return s;
+});
 
   revalidatePath("/admin/theaters");
   return screen;
