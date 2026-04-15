@@ -15,6 +15,16 @@ export const MovieStatusEnum = z.enum([
   "ENDED",
 ]);
 
+const optionalUrl = z
+  .string()
+  .trim()
+  .refine(
+    (val) => val === "" || z.string().url().safeParse(val).success,
+    {
+      message: "Invalid URL",
+    }
+  );
+
 export const MovieSchema = z.object({
   title: z.string().min(1),
   description: z.string().min(10),
@@ -24,9 +34,9 @@ export const MovieSchema = z.object({
   language: z.string(),
   releaseDate: z.string(),
 
-  posterUrl: z.string().url(),
-  backdropUrl: z.string().url().optional().or(z.literal("")),
-  trailerUrl: z.string().optional().or(z.literal("")),
+  posterUrl: optionalUrl,        // ✅ FIXED
+  backdropUrl: optionalUrl,      // ✅ consistent
+  trailerUrl: optionalUrl,       // ✅ FIXED
 
   cast: z.array(z.string()),
   director: z.string(),
@@ -39,17 +49,6 @@ export const MovieUpdateSchema = MovieSchema.partial();
 
 export type MovieInput = z.infer<typeof MovieSchema>;
 export type MovieUpdateInput = z.infer<typeof MovieUpdateSchema>;
-
-const optionalUrl = z
-  .string()
-  .trim()
-  .transform((val) => (val === "" ? "" : val))
-  .refine(
-    (val) => val === "" || z.string().url().safeParse(val).success,
-    {
-      message: "Invalid URL",
-    }
-  );
 
 export const MovieClientSchema = z.object({
   title: z.string().min(1, "Title is required"),

@@ -79,18 +79,12 @@ export function AdminMoviesClient({ movies }: { movies: Movie[] }) {
   e.preventDefault();
 
   const payload = {
-    ...form,
-    duration: Number(form.duration),
-    rating: Number(form.rating),
-    cast: Array.isArray(form.cast)
-      ? form.cast
-      : form.cast
-          .split(",")
-          .map((c) => c.trim())
-          .filter(Boolean),
-  };
+  ...form,
+  duration: Number(form.duration),
+  rating: Number(form.rating),
+  cast: form.cast,
+};
 
-  // ✅ CLIENT VALIDATION (safe)
   const result = MovieClientSchema.safeParse(payload);
 
   if (!result.success) {
@@ -101,21 +95,27 @@ export function AdminMoviesClient({ movies }: { movies: Movie[] }) {
   }
 
   startTransition(async () => {
-    try {
-      if (editing) {
-        await updateMovie(editing.id, result.data);
-        toast.success("Movie updated 🎬");
-      } else {
-        await createMovie(result.data);
-        toast.success("Movie created 🎉");
-      }
+  try {
+    const normalizedData = {
+      ...result.data,
+      trailerUrl: result.data.trailerUrl ?? "",   
+      backdropUrl: result.data.backdropUrl ?? "", 
+    };
 
-      setShowForm(false);
-    } catch (err) {
-      console.log(err)
-      toast.error("Something went wrong on server");
+    if (editing) {
+      await updateMovie(editing.id, normalizedData);
+      toast.success("Movie updated 🎬");
+    } else {
+      await createMovie(normalizedData); 
+      toast.success("Movie created 🎉");
     }
-  });
+
+    setShowForm(false);
+  } catch (err) {
+    console.log(err);
+    toast.error("Something went wrong on server");
+  }
+});
 };
 
   const handleDelete = (id: string) => {
