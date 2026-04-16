@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createShowtime } from "@/app/actions/showtimes";
-import { X, Loader2 } from "lucide-react";
+import { X, Loader2, Film, Calendar, Monitor, Banknote } from "lucide-react";
 import { toast } from "react-toastify";
 import { Theater } from "@/lib/types/cinema";
+import { motion } from "framer-motion";
 
 type Movie = {
   id: string;
@@ -39,23 +40,17 @@ export function CreateShowtimeModal({
     reclineMultiplier: 3,
   });
 
-  const selectedTheater = theaters.find(
-    (t) => t.id === selectedTheaterId
-  );
-
+  const selectedTheater = theaters.find((t) => t.id === selectedTheaterId);
   const screens = selectedTheater?.screens ?? [];
 
-  const isPastDate = (date: string) => {
-    return new Date(date) < new Date();
-  };
+  const isPastDate = (date: string) => new Date(date) < new Date();
 
   const getEndTime = () => {
     const movie = movies.find((m) => m.id === form.movieId);
     if (!movie || !form.startTime) return "";
 
     const end = new Date(
-      new Date(form.startTime).getTime() +
-        movie.duration * 60 * 1000
+      new Date(form.startTime).getTime() + movie.duration * 60 * 1000
     );
 
     return end.toISOString();
@@ -83,9 +78,7 @@ export function CreateShowtimeModal({
         onClose();
       } catch (err: unknown) {
         const message =
-          err instanceof Error
-            ? err.message
-            : "Failed to create showtime";
+          err instanceof Error ? err.message : "Failed to create showtime";
 
         toast.error(message);
       }
@@ -93,29 +86,38 @@ export function CreateShowtimeModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="w-full max-w-lg glass rounded-2xl p-6 space-y-4">
-        <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold">
-            Create Showtime
-          </h2>
+    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.25 }}
+        className="w-full max-w-xl rounded-2xl border border-border bg-background/80 backdrop-blur-xl shadow-2xl overflow-hidden"
+      >
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+          <div className="flex items-center gap-2">
+            <Film className="w-5 h-5 text-cinema-gold" />
+            <h2 className="text-lg font-semibold tracking-wide">
+              Create Showtime
+            </h2>
+          </div>
+
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="w-5 h-5" />
           </Button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label>Movie</Label>
+        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <Film className="w-4 h-4" /> Movie
+            </Label>
+
             <select
               value={form.movieId}
               onChange={(e) =>
-                setForm((p) => ({
-                  ...p,
-                  movieId: e.target.value,
-                }))
+                setForm((p) => ({ ...p, movieId: e.target.value }))
               }
-              className="w-full border rounded-md h-10 px-3"
+              className="w-full h-11 rounded-lg border bg-background px-3"
               required
             >
               <option value="">Select movie</option>
@@ -128,17 +130,15 @@ export function CreateShowtimeModal({
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <div>
+            <div className="space-y-2">
               <Label>Theater</Label>
               <select
                 value={selectedTheaterId}
-                onChange={(e) =>
-                  setSelectedTheaterId(e.target.value)
-                }
-                className="w-full border rounded-md h-10 px-3"
+                onChange={(e) => setSelectedTheaterId(e.target.value)}
+                className="w-full h-11 rounded-lg border bg-background px-3"
                 required
               >
-                <option value="">Select theater</option>
+                <option value="">Select</option>
                 {theaters.map((t) => (
                   <option key={t.id} value={t.id}>
                     {t.name}
@@ -147,20 +147,20 @@ export function CreateShowtimeModal({
               </select>
             </div>
 
-            <div>
-              <Label>Screen</Label>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Monitor className="w-4 h-4" /> Screen
+              </Label>
+
               <select
                 value={form.screenId}
                 onChange={(e) =>
-                  setForm((p) => ({
-                    ...p,
-                    screenId: e.target.value,
-                  }))
+                  setForm((p) => ({ ...p, screenId: e.target.value }))
                 }
-                className="w-full border rounded-md h-10 px-3"
+                className="w-full h-11 rounded-lg border bg-background px-3"
                 required
               >
-                <option value="">Select screen</option>
+                <option value="">Select</option>
                 {screens.map((s) => (
                   <option key={s.id} value={s.id}>
                     {s.name}
@@ -170,24 +170,28 @@ export function CreateShowtimeModal({
             </div>
           </div>
 
-          <div>
-            <Label>Start Time</Label>
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <Calendar className="w-4 h-4" /> Start Time
+            </Label>
+
             <Input
               type="datetime-local"
               min={new Date().toISOString().slice(0, 16)}
               value={form.startTime}
               onChange={(e) =>
-                setForm((p) => ({
-                  ...p,
-                  startTime: e.target.value,
-                }))
+                setForm((p) => ({ ...p, startTime: e.target.value }))
               }
+              className="h-11"
               required
             />
           </div>
 
-          <div>
-            <Label>Base Price</Label>
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <Banknote className="w-4 h-4" /> Base Price
+            </Label>
+
             <Input
               type="number"
               min="50"
@@ -198,21 +202,20 @@ export function CreateShowtimeModal({
                   basePrice: Number(e.target.value),
                 }))
               }
+              className="h-11"
             />
           </div>
 
           <Button
             type="submit"
-            className="w-full"
+            className="w-full h-11 bg-cinema-gold text-black hover:opacity-90"
             disabled={isPending}
           >
-            {isPending && (
-              <Loader2 className="animate-spin mr-2" />
-            )}
+            {isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
             Create Showtime
           </Button>
         </form>
-      </div>
+      </motion.div>
     </div>
   );
 }

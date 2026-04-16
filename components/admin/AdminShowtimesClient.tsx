@@ -29,9 +29,6 @@ type Movie = {
   duration: number;
 };
 
-
-/* ---------- COMPONENT ---------- */
-
 export function AdminShowtimesClient({
   showtimes,
   movies,
@@ -45,7 +42,6 @@ export function AdminShowtimesClient({
 
   return (
     <div>
-      {/* HEADER */}
       <div className="flex justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold">Showtimes</h1>
@@ -60,7 +56,6 @@ export function AdminShowtimesClient({
         </Button>
       </div>
 
-      {/* TABLE */}
       <div className="rounded-xl border overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-muted text-xs uppercase">
@@ -102,7 +97,6 @@ export function AdminShowtimesClient({
         </table>
       </div>
 
-      {/* MODAL */}
       {open && (
         <CreateShowtimeModal
           movies={movies}
