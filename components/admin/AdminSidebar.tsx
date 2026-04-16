@@ -24,7 +24,7 @@ export function AdminSidebar() {
               ADMIN
             </p>
             <p className="text-xs text-muted-foreground">
-              CineVault Control
+              CineHive Control
             </p>
           </div>
         </div>
