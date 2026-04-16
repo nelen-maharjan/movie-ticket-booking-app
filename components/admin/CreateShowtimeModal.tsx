@@ -7,23 +7,12 @@ import { Label } from "@/components/ui/label";
 import { createShowtime } from "@/app/actions/showtimes";
 import { X, Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
+import { Theater } from "@/lib/types/theaterScreen";
 
 type Movie = {
   id: string;
   title: string;
   duration: number;
-};
-
-type Screen = {
-  id: string;
-  name: string;
-  screenType: string;
-};
-
-type Theater = {
-  id: string;
-  name: string;
-  screens: Screen[];
 };
 
 type Props = {
