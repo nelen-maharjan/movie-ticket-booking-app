@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { createShowtime } from "@/app/actions/showtimes";
 import { X, Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
-import { Theater } from "@/lib/types/theaterScreen";
+import { Theater } from "@/lib/types/cinema";
 
 type Movie = {
   id: string;

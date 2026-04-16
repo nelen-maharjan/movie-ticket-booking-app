@@ -7,7 +7,7 @@ import { Plus, Zap } from "lucide-react";
 import { format } from "date-fns";
 import { formatCurrency } from "@/lib/utils";
 import { CreateShowtimeModal } from "./CreateShowtimeModal";
-import { Theater } from "@/lib/types/theaterScreen";
+import { Theater } from "@/lib/types/cinema";
 
 /* ---------- TYPES ---------- */
 
