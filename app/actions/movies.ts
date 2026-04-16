@@ -10,6 +10,7 @@ import {
   type MovieUpdateInput,
 } from "@/lib/zodSchema";
 
+import type { Movie, MovieStatus } from "@/lib/types/movie";
 
 function transformMovieInput(data: MovieInput) {
   return {
@@ -21,11 +22,11 @@ function transformMovieInput(data: MovieInput) {
 }
 
 export async function getMovies(filters?: {
-  status?: string;
+  status?: MovieStatus;
   genre?: string;
   search?: string;
   limit?: number;
-}) {
+}): Promise<Movie[]> {
   const movies = await db.movie.findMany({
     where: {
       ...(filters?.status && { status: filters.status }),
@@ -41,24 +42,45 @@ export async function getMovies(filters?: {
     take: filters?.limit,
   });
 
-  return movies as unknown as import("@/lib/types/movie").Movie[];
+  return movies as Movie[];
 }
+
 export async function getMovieById(id: string) {
   return db.movie.findUnique({
     where: { id },
+
     include: {
       showtimes: {
         where: {
           startTime: { gte: new Date() },
           status: "SCHEDULED",
         },
+        orderBy: { startTime: "asc" },
+
         include: {
           screen: {
-            include: { theater: true },
+            select: {
+              id: true,
+              name: true,
+              screenType: true,
+              totalRows: true,
+              totalCols: true,
+
+              theater: {
+                select: {
+                  id: true,
+                  name: true,
+                  location: true,
+                  city: true,
+                  address: true,
+                  phone: true,
+                },
+              },
+            },
           },
         },
-        orderBy: { startTime: "asc" },
       },
+
       reviews: {
         include: {
           user: {
@@ -87,10 +109,7 @@ export async function createMovie(data: MovieInput) {
   return movie;
 }
 
-export async function updateMovie(
-  id: string,
-  data: MovieUpdateInput
-) {
+export async function updateMovie(id: string, data: MovieUpdateInput) {
   const parsed = MovieUpdateSchema.parse(data);
 
   const movie = await db.movie.update({
@@ -146,10 +165,7 @@ export async function refreshPopularityScores() {
       Date.now() - 7 * 24 * 60 * 60 * 1000
     );
 
-    // Flatten all bookings through showtimes
-    const allBookings = movie.showtimes.flatMap(
-      (st) => st.bookings
-    );
+    const allBookings = movie.showtimes.flatMap((st) => st.bookings);
 
     const totalBookings = allBookings.length;
 
@@ -159,11 +175,8 @@ export async function refreshPopularityScores() {
 
     const avgRating =
       movie.reviews.length > 0
-        ? movie.reviews.reduce(
-            (sum: number, r: { rating: number }) =>
-              sum + r.rating,
-            0
-          ) / movie.reviews.length
+        ? movie.reviews.reduce((sum, r) => sum + r.rating, 0) /
+          movie.reviews.length
         : 0;
 
     const score = calculatePopularityScore({

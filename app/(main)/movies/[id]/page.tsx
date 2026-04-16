@@ -1,13 +1,11 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link";
 import { getMovieById } from "@/app/actions/movies";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Star, Clock, Calendar, Globe, Users, Film, Ticket } from "lucide-react";
-import { formatDuration, formatDateTime } from "@/lib/utils";
-import { ShowtimesList } from "@/components/movies/showtimes-list";
+import { Star, Clock, Calendar, Globe } from "lucide-react";
+import { formatDuration } from "@/lib/utils";
+import { ShowtimesList } from "@/components/client/ShowtimesList";
 
 export default async function MoviePage({ params }: { params: { id: string } }) {
   const movie = await getMovieById(params.id);
@@ -26,7 +24,7 @@ export default async function MoviePage({ params }: { params: { id: string } }) 
           fill
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cinema-dark/50 to-cinema-dark" />
+        <div className="absolute inset-0 bg-linear-to-b from-transparent via-cinema-dark/50 to-cinema-dark" />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 -mt-32 relative z-10">
@@ -74,7 +72,7 @@ export default async function MoviePage({ params }: { params: { id: string } }) 
         <Separator className="my-8" />
 
         {/* Showtimes */}
-        <ShowtimesList showtimes={movie.showtimes} movie={movie} />
+        <ShowtimesList showtimes={movie.showtimes}  />
 
         <Separator className="my-8" />
 
