@@ -1,6 +1,6 @@
-import { MovieCard } from "@/components/movies/movie-card";
 import { Film } from "lucide-react";
 import type { Movie } from "@/lib/types/movie";
+import { MovieCard } from "./MovieCard";
 
 type MovieGridProps = {
   movies: Movie[];

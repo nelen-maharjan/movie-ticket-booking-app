@@ -25,6 +25,8 @@ export type Movie = {
   director: string;
   status: MovieStatus;
   rating: number;
+
+  popularityScore: number;
 };
 
 export type MovieForm = {
