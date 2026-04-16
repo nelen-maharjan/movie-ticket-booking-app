@@ -107,16 +107,28 @@ export async function createTheater(data: { name: string; location: string; city
 }
 
 export async function createScreen(data: {
-  theaterId: string; name: string; totalRows: number; totalCols: number; screenType: string;
+  theaterId: string;
+  name: string;
+  totalRows: number;
+  totalCols: number;
+  screenType: string;
 }) {
   const { theaterId, name, totalRows, totalCols, screenType } = data;
+
   const rowLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-  const screen = await db.$transaction(async (tx) => {
-  const s = await tx.screen.create({
-    data: { theaterId, name, totalRows, totalCols, screenType },
+  // ✅ Step 1: create screen
+  const screen = await db.screen.create({
+    data: {
+      theaterId,
+      name,
+      totalRows,
+      totalCols,
+      screenType,
+    },
   });
 
+  // ✅ Step 2: generate seats (NO DB calls here)
   const seats: {
     screenId: string;
     row: string;
@@ -136,7 +148,7 @@ export async function createScreen(data: {
       else if (r < Math.floor(totalRows * 0.7)) type = "PREMIUM";
 
       seats.push({
-        screenId: s.id,
+        screenId: screen.id,
         row,
         col: c,
         seatNumber: `${row}${c}`,
@@ -145,11 +157,12 @@ export async function createScreen(data: {
     }
   }
 
-  await tx.seat.createMany({ data: seats });
-
-  return s;
-});
+  // ✅ Step 3: bulk insert (fast + safe)
+  await db.seat.createMany({
+    data: seats,
+  });
 
   revalidatePath("/admin/theaters");
+
   return screen;
 }
