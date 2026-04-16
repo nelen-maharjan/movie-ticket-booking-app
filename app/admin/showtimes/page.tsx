@@ -1,5 +1,6 @@
-import { db } from "@/lib/db";
 import { AdminShowtimesClient } from "@/components/admin/AdminShowtimesClient";
+import { db } from "@/lib/db";
+
 
 export default async function AdminShowtimesPage() {
   const [showtimes, movies, theaters] = await Promise.all([
