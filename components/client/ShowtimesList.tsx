@@ -13,7 +13,7 @@ import {
   isSameDay,
 } from "date-fns";
 
-import type { Showtime, TheaterBasic } from "@/lib/types/showtimeView";
+import type { Showtime, Theater } from "@/lib/types/showtimeView";
 
 type ShowtimesListProps = {
   showtimes: Showtime[];
@@ -29,7 +29,7 @@ export function ShowtimesList({ showtimes }: ShowtimesListProps) {
   );
 
   const byTheater = filteredShowtimes.reduce<
-    Record<string, { theater: TheaterBasic; showtimes: Showtime[] }>
+    Record<string, { theater: Theater; showtimes: Showtime[] }>
   >((acc, st) => {
     const theater = st.screen.theater;
     const theaterId = theater.id;

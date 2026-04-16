@@ -10,7 +10,8 @@ import {
   type MovieUpdateInput,
 } from "@/lib/zodSchema";
 
-import type { Movie, MovieStatus } from "@/lib/types/movie";
+import type { MovieStatus } from "@/lib/types/movie";
+import type { Movie } from "@/lib/types/movieView";
 
 function transformMovieInput(data: MovieInput) {
   return {
@@ -38,15 +39,44 @@ export async function getMovies(filters?: {
         ],
       }),
     },
-    orderBy: [{ popularityScore: "desc" }, { createdAt: "desc" }],
+
+    include: {
+      showtimes: {
+        include: {
+          screen: {
+            include: {
+              theater: true,
+            },
+          },
+        },
+      },
+      reviews: {
+        include: {
+          user: {
+            select: {
+              name: true,
+              avatar: true,
+            },
+          },
+        },
+      },
+    },
+
+    orderBy: [
+      { popularityScore: "desc" },
+      { createdAt: "desc" },
+    ],
     take: filters?.limit,
   });
 
-  return movies as Movie[];
+  return movies.map((movie) => ({
+    ...movie,
+    status: movie.status as MovieStatus,
+  }));
 }
 
-export async function getMovieById(id: string) {
-  return db.movie.findUnique({
+export async function getMovieById(id: string): Promise<Movie | null> {
+  const movie = await db.movie.findUnique({
     where: { id },
 
     include: {
@@ -56,26 +86,10 @@ export async function getMovieById(id: string) {
           status: "SCHEDULED",
         },
         orderBy: { startTime: "asc" },
-
         include: {
           screen: {
-            select: {
-              id: true,
-              name: true,
-              screenType: true,
-              totalRows: true,
-              totalCols: true,
-
-              theater: {
-                select: {
-                  id: true,
-                  name: true,
-                  location: true,
-                  city: true,
-                  address: true,
-                  phone: true,
-                },
-              },
+            include: {
+              theater: true,
             },
           },
         },
@@ -94,6 +108,24 @@ export async function getMovieById(id: string) {
       },
     },
   });
+
+  if (!movie) return null;
+
+  return {
+    ...movie,
+
+    status: movie.status as MovieStatus,
+
+    showtimes: movie.showtimes.map((st) => ({
+      ...st,
+      screen: {
+        ...st.screen,
+        theater: st.screen.theater,
+      },
+    })),
+
+    reviews: movie.reviews,
+  };
 }
 
 export async function createMovie(data: MovieInput) {

@@ -1,10 +1,20 @@
+export type Theater = {
+  id: string;
+  name: string;
+  city: string;
+  location: string;
+  address: string;
+  phone?: string | null;
+};
 
-import type { Screen, Theater } from "./showtimeType";
+export type Screen = {
+  id: string;
+  name: string;
+  screenType: string;
+  totalRows: number;
+  totalCols: number;
 
-export type TheaterBasic = Omit<Theater, "screens">;
-
-export type ScreenWithTheater = Omit<Screen, never> & {
-  theater: TheaterBasic;
+  theater: Theater;
 };
 
 export type Showtime = {
@@ -13,5 +23,6 @@ export type Showtime = {
   basePrice: number;
   availableSeats: number;
   totalSeats: number;
-  screen: ScreenWithTheater;
+
+  screen: Screen;
 };
