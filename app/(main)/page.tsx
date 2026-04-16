@@ -1,6 +1,7 @@
 import { getMovies } from "@/app/actions/movies";
 import { HeroSection } from "@/components/client/HeroSection";
 import { MovieFilters } from "@/components/client/MovieFilters";
+import { MovieGrid } from "@/components/client/MovieGrid";
 
 export default async function HomePage({
   searchParams,
@@ -20,7 +21,7 @@ export default async function HomePage({
       <HeroSection movies={featuredMovies} />
       <div className="max-w-7xl mx-auto px-4 py-12">
         <MovieFilters currentFilters={searchParams} />
-        {/* <MovieGrid movies={movies} /> */}
+        <MovieGrid movies={movies} />
       </div>
     </div>
   );
