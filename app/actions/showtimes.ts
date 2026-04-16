@@ -128,7 +128,6 @@ export async function createScreen(data: {
     },
   });
 
-  // ✅ Step 2: generate seats (NO DB calls here)
   const seats: {
     screenId: string;
     row: string;
@@ -157,7 +156,6 @@ export async function createScreen(data: {
     }
   }
 
-  // ✅ Step 3: bulk insert (fast + safe)
   await db.seat.createMany({
     data: seats,
   });
