@@ -1,4 +1,3 @@
-
 import { AdminBookingsTable } from "@/components/admin/AdminBookingsTable";
 import { db } from "@/lib/db";
 
