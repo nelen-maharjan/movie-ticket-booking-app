@@ -7,7 +7,24 @@ import { Badge } from "@/components/ui/badge";
 import { Play, Ticket, Star, Clock } from "lucide-react";
 import { formatDuration } from "@/lib/utils";
 
-export function HeroSection({ movies }: { movies: any[] }) {
+type Movie = {
+  id: string | number;
+  title: string;
+  description: string;
+  backdropUrl?: string | null;
+  posterUrl: string;
+  genre?: string[];
+  rating: number;
+  duration: number; 
+  language: string;
+  trailerUrl?: string | null;
+};
+
+type HeroSectionProps = {
+  movies: Movie[];
+};
+
+export function HeroSection({ movies }: HeroSectionProps) {
   const [current, setCurrent] = useState(0);
   const movie = movies[current];
 
@@ -21,7 +38,6 @@ export function HeroSection({ movies }: { movies: any[] }) {
 
   return (
     <div className="relative h-[70vh] min-h-125 overflow-hidden">
-      {/* Backdrop */}
       <div className="absolute inset-0">
         <Image
           src={movie.backdropUrl || movie.posterUrl}
@@ -35,7 +51,6 @@ export function HeroSection({ movies }: { movies: any[] }) {
         <div className="absolute inset-0 bg-linear-to-t from-cinema-dark via-transparent to-transparent" />
       </div>
 
-      {/* Content */}
       <div className="relative z-10 h-full flex items-center">
         <div className="max-w-7xl mx-auto px-4 w-full">
           <div className="max-w-xl animate-fade-up">
@@ -78,7 +93,6 @@ export function HeroSection({ movies }: { movies: any[] }) {
         </div>
       </div>
 
-      {/* Indicators */}
       {movies.length > 1 && (
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
           {movies.map((_, i) => (
