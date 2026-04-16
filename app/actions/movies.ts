@@ -70,9 +70,10 @@ export async function getMovies(filters?: {
   });
 
   return movies.map((movie) => ({
-    ...movie,
-    status: movie.status as MovieStatus,
-  }));
+  ...movie,
+  status: movie.status as MovieStatus,
+  backdropUrl: movie.backdropUrl ?? null, 
+}));
 }
 
 export async function getMovieById(id: string): Promise<Movie | null> {
