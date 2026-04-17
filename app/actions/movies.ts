@@ -72,7 +72,10 @@ export async function getMovies(filters?: {
   return movies.map((movie) => ({
   ...movie,
   status: movie.status as MovieStatus,
-  backdropUrl: movie.backdropUrl ?? null, 
+
+  backdropUrl: movie.backdropUrl ?? null,
+  trailerUrl: movie.trailerUrl ?? null,
+  posterUrl: movie.posterUrl ?? null, 
 }));
 }
 
