@@ -24,7 +24,8 @@ export function MovieFilters({ currentFilters }: { currentFilters: Record<string
     params.delete(key);
   }
 
-  router.push(`/?${params.toString()}`);
+  const query = params.toString();
+  router.push(query ? `/?${query}` : "/");
 }, [router]);
 
   return (
