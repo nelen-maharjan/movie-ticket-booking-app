@@ -16,13 +16,16 @@ export function MovieFilters({ currentFilters }: { currentFilters: Record<string
   const [search, setSearch] = useState(currentFilters.search || "");
 
   const updateFilter = useCallback((key: string, value: string | null) => {
-    const params = new URLSearchParams();
-    if (currentFilters.status && key !== "status") params.set("status", currentFilters.status);
-    if (currentFilters.genre && key !== "genre") params.set("genre", currentFilters.genre);
-    if (currentFilters.search && key !== "search") params.set("search", currentFilters.search);
-    if (value) params.set(key, value);
-    router.push(`/?${params.toString()}`);
-  }, [currentFilters, router]);
+  const params = new URLSearchParams(window.location.search);
+
+  if (value) {
+    params.set(key, value);
+  } else {
+    params.delete(key);
+  }
+
+  router.push(`/?${params.toString()}`);
+}, [router]);
 
   return (
     <div className="mb-8 space-y-4">
