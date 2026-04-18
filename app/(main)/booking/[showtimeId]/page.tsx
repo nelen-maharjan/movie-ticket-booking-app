@@ -1,9 +1,8 @@
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { getShowtimeWithSeats } from "@/app/actions/showtimes";
-import { SeatSelector } from "@/components/booking/seat-selector";
 import { ShowtimeInfo } from "@/components/client/ShowtimeInfo";
-
+import { SeatSelector } from "@/components/client/SeatSelector";
 export default async function BookingPage({ params }: { params: { showtimeId: string } }) {
   const session = await auth();
 
