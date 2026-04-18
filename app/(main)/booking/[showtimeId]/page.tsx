@@ -11,12 +11,24 @@ export default async function BookingPage({ params }: { params: { showtimeId: st
   }
 
   const data = await getShowtimeWithSeats(params.showtimeId);
-  if (!data) return notFound();
+if (!data) return notFound();
+
+const normalizedData = {
+  ...data,
+  recommendations: data.recommendations?.map((rec) => ({
+    ...rec,
+    seats: rec.seats.map((s) => {
+      const fullSeat = data.seats.find((fs) => fs.id === s.id);
+      if (!fullSeat) throw new Error("Seat mismatch");
+      return fullSeat;
+    }),
+  })),
+};
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <ShowtimeInfo showtime={data} />
-      <SeatSelector showtime={data} userId={session.user.id!} />
+      <SeatSelector showtime={normalizedData} userId={session.user.id} />
     </div>
   );
 }

@@ -4,7 +4,11 @@ import { useState, useTransition, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { lockSeats, getSeatPrices, createBooking } from "@/app/actions/bookings";
+import {
+  lockSeats,
+  getSeatPrices,
+  createBooking,
+} from "@/app/actions/bookings";
 import { formatCurrency } from "@/lib/utils";
 import {
   Armchair,
@@ -15,7 +19,12 @@ import {
   Loader2,
 } from "lucide-react";
 
-import type { Seat, Showtime, Booking } from "@/lib/types/seatShowtimeType";
+import type {
+  Seat,
+  Showtime,
+  Booking,
+} from "@/lib/types/seatShowtimeType";
+
 import { toast } from "react-toastify";
 
 const SEAT_TYPE_CONFIG = {
@@ -63,7 +72,10 @@ export function SeatSelector({
   const [booking, setBooking] = useState<Booking | null>(null);
   const [isPending, startTransition] = useTransition();
 
+  const router = useRouter();
+
   const seats = showtime.seats;
+  const recommendations = showtime.recommendations ?? [];
 
   const seatMap = useMemo(() => {
     const map = new Map<string, Seat>();
@@ -90,9 +102,7 @@ export function SeatSelector({
       if (next.has(seat.id)) {
         next.delete(seat.id);
       } else {
-        if (next.size >= 8) {
-          return prev;
-        }
+        if (next.size >= 8) return prev;
         next.add(seat.id);
       }
 
@@ -112,17 +122,21 @@ export function SeatSelector({
 
     startTransition(async () => {
       try {
-        const prices = await getSeatPrices(showtime.id, [...selectedSeats]);
+        const prices = await getSeatPrices(showtime.id, [
+          ...selectedSeats,
+        ]);
 
         const priceMap: Record<string, number> = {};
-        prices.forEach((p: { seatId: string; price: number }) => {
+
+        prices.forEach((p) => {
           priceMap[p.seatId] = p.price;
         });
 
         setSeatPrices(priceMap);
         setStep("review");
       } catch (e: unknown) {
-        const message = e instanceof Error ? e.message : "Something went wrong";
+        const message =
+          e instanceof Error ? e.message : "Something went wrong";
         toast.error(message);
       }
     });
@@ -138,14 +152,15 @@ export function SeatSelector({
         setStep("confirmed");
         toast.success("Booking confirmed 🎉");
       } catch (e: unknown) {
-        const message = e instanceof Error ? e.message : "Booking failed";
+        const message =
+          e instanceof Error ? e.message : "Booking failed";
         toast.error(message);
       }
     });
   };
 
   const totalAmount = [...selectedSeats].reduce(
-    (sum, id) => sum + (seatPrices[id] || 0),
+    (sum, id) => sum + (seatPrices[id] ?? 0),
     0
   );
 
@@ -163,14 +178,19 @@ export function SeatSelector({
       <div className="lg:col-span-2">
         <div className="mb-8 text-center">
           <div className="mx-auto w-3/4 h-2 bg-linear-to-r from-transparent via-cinema-gold/60 to-transparent rounded-full mb-2" />
-          <p className="text-xs text-muted-foreground tracking-widest uppercase">Screen</p>
+          <p className="text-xs text-muted-foreground tracking-widest uppercase">
+            Screen
+          </p>
         </div>
 
         <div className="overflow-x-auto pb-4">
           <div className="inline-block min-w-full">
             <div className="flex mb-1 ml-8">
               {Array.from({ length: maxCol }, (_, i) => (
-                <div key={i} className="w-7 text-center text-xs text-muted-foreground/40">
+                <div
+                  key={i}
+                  className="w-7 text-center text-xs text-muted-foreground/40"
+                >
                   {i + 1}
                 </div>
               ))}
@@ -186,12 +206,13 @@ export function SeatSelector({
                   {Array.from({ length: maxCol }, (_, colIdx) => {
                     const seat = seatMap.get(`${row}-${colIdx + 1}`);
 
-                    if (!seat) return <div key={colIdx} className="w-7 h-7" />;
+                    if (!seat)
+                      return <div key={colIdx} className="w-7 h-7" />;
 
                     const config = SEAT_TYPE_CONFIG[seat.type];
                     const isSelected = selectedSeats.has(seat.id);
 
-                    const isRec = showtime.recommendations?.some((r) =>
+                    const isRec = recommendations.some((r) =>
                       r.seats.some((rs) => rs.id === seat.id)
                     );
 
@@ -210,7 +231,11 @@ export function SeatSelector({
                               ? `${config.selected} scale-110`
                               : config.color
                           }
-                          ${isRec && !isSelected ? "ring-1 ring-cinema-gold/50" : ""}
+                          ${
+                            isRec && !isSelected
+                              ? "ring-1 ring-cinema-gold/50"
+                              : ""
+                          }
                         `}
                       >
                         {isSelected && "✓"}
@@ -226,8 +251,13 @@ export function SeatSelector({
         {/* Legend */}
         <div className="flex flex-wrap gap-4 mt-6 justify-center">
           {Object.entries(SEAT_TYPE_CONFIG).map(([type, cfg]) => (
-            <div key={type} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <div className={`w-4 h-4 rounded-sm border ${cfg.color}`} />
+            <div
+              key={type}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground"
+            >
+              <div
+                className={`w-4 h-4 rounded-sm border ${cfg.color}`}
+              />
               {cfg.label} ({cfg.multiplier})
             </div>
           ))}
@@ -236,23 +266,29 @@ export function SeatSelector({
 
       {/* Sidebar */}
       <div className="space-y-4">
-        {showtime.recommendations?.length > 0 && (
+        {recommendations.length > 0 && (
           <div className="glass rounded-xl p-4">
             <div className="flex items-center gap-2 mb-3">
               <Zap className="w-4 h-4 text-cinema-gold" />
-              <h3 className="font-semibold text-sm">AI Seat Picks</h3>
+              <h3 className="font-semibold text-sm">
+                AI Seat Picks
+              </h3>
             </div>
 
-            {showtime.recommendations.slice(0, 3).map((rec, i) => (
+            {recommendations.slice(0, 3).map((rec, i) => (
               <button
                 key={i}
-                onClick={() => handleSelectRecommendation(rec.seats)}
+                onClick={() =>
+                  handleSelectRecommendation(rec.seats)
+                }
                 className="w-full text-left p-3 rounded-lg border hover:border-cinema-gold/40"
               >
                 <div className="text-xs text-cinema-gold">
                   {rec.seats.map((s) => s.seatNumber).join(", ")}
                 </div>
-                <div className="text-xs text-muted-foreground">{rec.reason}</div>
+                <div className="text-xs text-muted-foreground">
+                  {rec.reason}
+                </div>
               </button>
             ))}
           </div>
@@ -260,7 +296,9 @@ export function SeatSelector({
 
         {/* Summary */}
         <div className="glass rounded-xl p-4 sticky top-20">
-          <h3 className="font-semibold mb-4">Booking Summary</h3>
+          <h3 className="font-semibold mb-4">
+            Booking Summary
+          </h3>
 
           {selectedSeats.size === 0 ? (
             <p className="text-muted-foreground text-sm text-center py-4">
@@ -274,10 +312,17 @@ export function SeatSelector({
                   const price = seatPrices[seat.id];
 
                   return (
-                    <div key={seat.id} className="flex justify-between text-sm">
-                      <span>{seat.seatNumber}</span>
+                    <div
+                      key={seat.id}
+                      className="flex justify-between text-sm"
+                    >
                       <span>
-                        {price ? formatCurrency(price) : "—"}
+                        {seat.seatNumber} ({cfg.label})
+                      </span>
+                      <span>
+                        {price
+                          ? formatCurrency(price)
+                          : "—"}
                       </span>
                     </div>
                   );
@@ -289,22 +334,38 @@ export function SeatSelector({
                   <Separator />
                   <div className="flex justify-between font-bold mt-2">
                     <span>Total</span>
-                    <span>{formatCurrency(totalAmount)}</span>
+                    <span>
+                      {formatCurrency(totalAmount)}
+                    </span>
                   </div>
                 </>
               )}
 
               {step === "select" ? (
-                <Button onClick={handleProceed} disabled={isPending} className="w-full">
-                  {isPending && <Loader2 className="animate-spin mr-2" />}
+                <Button
+                  onClick={handleProceed}
+                  disabled={isPending}
+                  className="w-full"
+                >
+                  {isPending && (
+                    <Loader2 className="animate-spin mr-2" />
+                  )}
                   Review ({selectedSeats.size})
                 </Button>
               ) : (
                 <>
-                  <Button onClick={handleConfirm} className="w-full">
-                    Confirm & Pay {formatCurrency(totalAmount)}
+                  <Button
+                    onClick={handleConfirm}
+                    className="w-full"
+                  >
+                    Confirm & Pay{" "}
+                    {formatCurrency(totalAmount)}
                   </Button>
-                  <Button variant="ghost" onClick={() => setStep("select")} className="w-full">
+                  <Button
+                    variant="ghost"
+                    onClick={() => setStep("select")}
+                    className="w-full"
+                  >
                     Change Seats
                   </Button>
                 </>
@@ -317,12 +378,18 @@ export function SeatSelector({
   );
 }
 
-function BookingConfirmed({ booking }: { booking: Booking }) {
+function BookingConfirmed({
+  booking,
+}: {
+  booking: Booking;
+}) {
   const router = useRouter();
 
   return (
     <div className="text-center py-16">
-      <h2 className="text-3xl text-green-400 mb-4">BOOKING CONFIRMED</h2>
+      <h2 className="text-3xl text-green-400 mb-4">
+        BOOKING CONFIRMED
+      </h2>
       <p className="mb-4">Ref: {booking.bookingRef}</p>
       <p>Total: {formatCurrency(booking.totalAmount)}</p>
 
@@ -330,7 +397,10 @@ function BookingConfirmed({ booking }: { booking: Booking }) {
         <Button onClick={() => router.push("/bookings")}>
           My Tickets
         </Button>
-        <Button variant="outline" onClick={() => router.push("/")}>
+        <Button
+          variant="outline"
+          onClick={() => router.push("/")}
+        >
           Browse
         </Button>
       </div>
