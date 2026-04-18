@@ -1,13 +1,15 @@
 import { notFound, redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { getShowtimeWithSeats } from "@/app/actions/showtimes";
 import { SeatSelector } from "@/components/booking/seat-selector";
-import { ShowtimeInfo } from "@/components/booking/showtime-info";
+import { ShowtimeInfo } from "@/components/client/ShowtimeInfo";
 
 export default async function BookingPage({ params }: { params: { showtimeId: string } }) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) redirect(`/login?callbackUrl=/booking/${params.showtimeId}`);
+  const session = await auth();
+
+  if (!session?.user) {
+    redirect(`/login?callbackUrl=/booking/${params.showtimeId}`);
+  }
 
   const data = await getShowtimeWithSeats(params.showtimeId);
   if (!data) return notFound();
