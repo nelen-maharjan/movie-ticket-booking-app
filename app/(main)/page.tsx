@@ -8,28 +8,34 @@ import { MovieStatus } from "@/lib/types/movie";
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams: { genre?: string; search?: string; status?: string };
+  searchParams: Promise<{
+    genre?: string;
+    search?: string;
+    status?: string;
+  }>;
 }) {
-  const moviesRaw = await getMovies({
-  status: (searchParams.status as MovieStatus) || "NOW_SHOWING",
-  genre: searchParams.genre,
-  search: searchParams.search,
-});
+  const params = await searchParams;
 
-const movies = moviesRaw.map(mapToUIMovie);
+  const moviesRaw = await getMovies({
+    status: (params.status as MovieStatus) || "NOW_SHOWING",
+    genre: params.genre,
+    search: params.search,
+  });
+
+  const movies = moviesRaw.map(mapToUIMovie);
 
   const featuredRaw = await getMovies({
-  status: "NOW_SHOWING",
-  limit: 3,
-});
+    status: "NOW_SHOWING",
+    limit: 3,
+  });
 
-const featuredMovies = featuredRaw.map(mapToUIMovie);
+  const featuredMovies = featuredRaw.map(mapToUIMovie);
 
   return (
     <div>
       <HeroSection movies={featuredMovies} />
       <div className="max-w-7xl mx-auto px-4 py-12">
-        <MovieFilters currentFilters={searchParams} />
+        <MovieFilters currentFilters={params} />
         <MovieGrid movies={movies} />
       </div>
     </div>

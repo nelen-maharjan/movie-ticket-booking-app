@@ -208,7 +208,7 @@ export function CreateShowtimeModal({
 
           <Button
             type="submit"
-            className="w-full h-11 bg-cinema-gold text-black hover:opacity-90"
+            className="w-full h-11 bg-yellow-600 text-black hover:opacity-90"
             disabled={isPending}
           >
             {isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
