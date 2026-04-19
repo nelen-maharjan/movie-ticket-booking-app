@@ -20,7 +20,6 @@ export default function MovieClient({ movie }: { movie: Movie }) {
   return (
     <div className="min-h-screen bg-background">
 
-      {/* BACKDROP */}
       <div className="relative h-[60vh] w-full overflow-hidden">
         <Image
           src={movie.backdropUrl || movie.posterUrl}
@@ -67,7 +66,7 @@ export default function MovieClient({ movie }: { movie: Movie }) {
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                 >
-                  <Badge variant="gold">{g}</Badge>
+                  <Badge variant="cinema">{g}</Badge>
                 </motion.div>
               ))}
 
