@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 export function BookingCard({ booking }: { booking: BookingWithRelations }) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const isUpcoming = new Date(booking.showtime.startTime) > new Date();
 
@@ -45,14 +47,19 @@ export function BookingCard({ booking }: { booking: BookingWithRelations }) {
     });
   };
 
+  const handleNavigate = () => {
+    router.push(`/bookings/${booking.id}`);
+  };
+
   return (
     <motion.div
+      onClick={handleNavigate}
       initial={{ opacity: 0, y: 20, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       whileHover={{ y: -6 }}
       transition={{ duration: 0.3 }}
       className={`group relative rounded-2xl border p-5 backdrop-blur-xl 
-      bg-white/5 shadow-lg transition-all duration-300
+      bg-white/5 shadow-lg transition-all duration-300 cursor-pointer
       ${
         booking.status === "CANCELLED"
           ? "opacity-60"
@@ -69,7 +76,6 @@ export function BookingCard({ booking }: { booking: BookingWithRelations }) {
             fill
             className="rounded-xl object-cover"
           />
-          <div className="absolute inset-0 bg-black/20 rounded-xl" />
         </div>
 
         <div className="flex-1 min-w-0">
@@ -101,15 +107,8 @@ export function BookingCard({ booking }: { booking: BookingWithRelations }) {
           <div className="flex items-center gap-2 mb-4 flex-wrap">
             <Ticket className="w-4 h-4 text-cinema-gold" />
             {booking.bookingSeats.map((bs) => (
-              <motion.div
-                key={bs.id}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Badge
-                  variant="secondary"
-                  className="text-xs font-mono bg-white/10 hover:bg-cinema-gold/20 transition"
-                >
+              <motion.div key={bs.id} whileHover={{ scale: 1.1 }}>
+                <Badge className="text-xs font-mono bg-white/10">
                   {bs.seat.seatNumber}
                 </Badge>
               </motion.div>
@@ -135,24 +134,26 @@ export function BookingCard({ booking }: { booking: BookingWithRelations }) {
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button
+                      onClick={(e) => e.stopPropagation()}
                       variant="outline"
                       size="sm"
-                      className="border-cinema-red/40 text-cinema-red hover:bg-cinema-red/10"
+                      className="border-cinema-red/40 text-cinema-red"
                     >
                       <X className="w-4 h-4 mr-1" />
                       Cancel
                     </Button>
                   </AlertDialogTrigger>
 
-                  <AlertDialogContent className="bg-zinc-900 border border-white/10">
+                  <AlertDialogContent
+                    onClick={(e) => e.stopPropagation()}
+                    className="bg-zinc-900 border border-white/10"
+                  >
                     <AlertDialogHeader>
                       <AlertDialogTitle>
                         Cancel booking?
                       </AlertDialogTitle>
                       <AlertDialogDescription>
-                        This action cannot be undone. Your{" "}
-                        {booking.bookingSeats.length} seat(s) will be released
-                        and may be booked by someone else.
+                        This cannot be undone. Seats will be released.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
 
@@ -162,9 +163,11 @@ export function BookingCard({ booking }: { booking: BookingWithRelations }) {
                       </AlertDialogCancel>
 
                       <AlertDialogAction
-                        onClick={handleCancel}
-                        disabled={isPending}
-                        className="bg-red-600 hover:bg-red-700 text-white"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCancel();
+                        }}
+                        className="bg-red-600 hover:bg-red-700"
                       >
                         {isPending ? (
                           <Loader2 className="w-4 h-4 animate-spin" />

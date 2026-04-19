@@ -290,3 +290,26 @@ export async function cancelBooking(bookingId: string) {
 
   revalidatePath("/bookings");
 }
+
+export async function getBookingById(id: string) {
+  return db.booking.findUnique({
+    where: { id },
+    include: {
+      showtime: {
+        include: {
+          movie: true,
+          screen: {
+            include: {
+              theater: true,
+            },
+          },
+        },
+      },
+      bookingSeats: {
+        include: {
+          seat: true,
+        },
+      },
+    },
+  });
+}
