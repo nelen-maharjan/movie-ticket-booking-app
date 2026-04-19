@@ -247,6 +247,9 @@ export async function getUserBookings(userId: string) {
     orderBy: { createdAt: "desc" },
   });
 }
+export type BookingWithRelations = Awaited<
+  ReturnType<typeof getUserBookings>
+>[number];
 
 // Cancel booking
 export async function cancelBooking(bookingId: string) {

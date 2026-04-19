@@ -1,8 +1,8 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { getUserBookings } from "@/app/actions/bookings";
-import { BookingCard } from "@/components/booking/booking-card";
 import { Ticket } from "lucide-react";
+import { BookingCard } from "@/components/client/BookingCard";
 
 export default async function BookingsPage() {
   const session = await auth(); 
